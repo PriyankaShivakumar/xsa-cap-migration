@@ -1,5 +1,6 @@
 const shell = require("shelljs");
 const fsExtra = require("fs-extra");
+const fs = require('fs');
 
 const modifyHdiNamespace = require("./modifyHdiNamespace");
 const convertHdbcdsToCds = require("./convertHdbcdsToCds");
@@ -89,16 +90,24 @@ const copyDbFiles = (source, destination) => {
 };
 
 const modifyViewNotation = () => {
+  const standaloneBeforeAsPattern = /([^a-zA-Z0-9_])"([^"]+)"(?=\s+as\s+)/g;
+  const asPattern = /(\S+)\s+as\s+"([^"]+)"/g;
+  const secondAsPattern = /"([^"]+)"\s+as\s+"([^"]+)"/g;
+  const dotPattern = /(\.\s*)"([^"]+)"/g;
+  const standalonePattern = /([^a-zA-Z0-9_])"([^"]+)"(?!\s+as\s+)/g;
   shell
     .find(".")
     .filter((file) => file.endsWith(".cds"))
     .forEach((file) => {
-      shell.exec(
-        `sh -c "cat ${file} | sed -e 's/\\"/\\![/; s/\\"/]/' > ${file}.cases; mv ${file}.cases ${file};"`
-      );
-      shell.exec(
-        `sh -c "cat ${file} | sed -e 's/\\"/\\![/; s/\\"/]/' > ${file}.cases; mv ${file}.cases ${file};"`
-      );
+      let content = fs.readFileSync(file, 'utf8');
+      const modifiedContent = content
+        .replace(standaloneBeforeAsPattern, '$1![$2]')
+        .replace(asPattern, '$1 as ![$2]')
+        .replace(secondAsPattern, '![$1] as ![$2]')
+        .replace(dotPattern, '$1![$2]')
+        .replace(standalonePattern, '$1 ![$2]');
+    
+      fs.writeFileSync(file, modifiedContent);
     });
 };
 
