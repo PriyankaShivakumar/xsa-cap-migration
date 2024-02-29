@@ -16,7 +16,11 @@ const {
 const structuredPrivilege = require("./structuredPrivilege");
 const removeSeriesFunction = require("./removeSeriesFunction");
 const technicalConfig = require("./technicalConfig");
-const { commentAnnotation, annotationUpdate } = require("./annotationChanges");
+const {
+  commentAnnotation,
+  annotationUpdate,
+  removeAnnotation,
+} = require("./annotationChanges");
 const updateSchema = require("./updateSchema");
 const findFiles = require("./findFiles");
 
@@ -29,8 +33,8 @@ const setup_db = async (source, destination, option) => {
     modifyHdiNamespace(destination);
     console.log("Convert hdbcds to cds");
     convertHdbcdsToCds(".", ".hdbcds", ".cds");
-    // console.log("Using Calculation Views Modification");
-    // calViewModification();
+    console.log("Using Calculation Views Modification");
+    calViewModification();
     console.log("Modify the view notation");
     modifyViewNotation();
     console.log("Change Datatypes");
@@ -49,10 +53,10 @@ const setup_db = async (source, destination, option) => {
     formatSynonymConfig(".");
     console.log("Create hdbtabletype files");
     processFolder(".");
-    // console.log("Modify the Simple using statements");
-    // replaceSimpleUsingInFiles(".");
-    // console.log("Modify using notation for statements with ::");
-    // replaceUsingInFiles(".");
+    console.log("Modify the Simple using statements");
+    replaceSimpleUsingInFiles(".");
+    console.log("Modify using notation for statements with ::");
+    replaceUsingInFiles(".");
     console.log("Move the cds files to a cds folder and create an index.cds");
     moveAndIndexCds(".", "./cds");
     console.log("Modify the technical configurations");
@@ -63,6 +67,8 @@ const setup_db = async (source, destination, option) => {
     removeSeriesFunction(".");
     console.log("Replace @Comment with /* */");
     commentAnnotation(".");
+    console.log("Removing annotations file....");
+    removeAnnotation(".");
     // console.log("Modify the annotation syntax");
     // annotationUpdate("./cds");
     console.log("Remove Schema");

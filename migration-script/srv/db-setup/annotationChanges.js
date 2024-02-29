@@ -64,4 +64,29 @@ const commentAnnotation = (directory) => {
   }
 };
 
-module.exports = { commentAnnotation, annotationUpdate };
+const removeAnnotation = (directory) => {
+  try {
+    const files = shell
+      .find(directory)
+      .filter((file) => file.endsWith("annotations.cds"));
+    files.forEach(function (file) {
+      fs1.unlink(file, function (err) {
+        if (err) throw err;
+        console.log("annotations.cds was deleted");
+      });
+    });
+    const cdsFiles = shell
+      .find(directory)
+      .filter((file) => file.endsWith(".cds"));
+    cdsFiles.forEach(function (file) {
+      let fileData = fs1.readFileSync(file, "utf8");
+      let regex = /(?<=\n)[^\n]*from\s'\.\/annotations';[^\n]*(?=\n)/g;
+      let updatedData = fileData.replace(regex, "");
+      fs1.writeFileSync(file, updatedData, "utf8");
+    });
+  } catch (error) {
+    console.error(`Error: ${error}`);
+  }
+};
+
+module.exports = { commentAnnotation, annotationUpdate, removeAnnotation };
