@@ -20,6 +20,7 @@ const {
   commentAnnotation,
   annotationUpdate,
   removeAnnotation,
+  modifyUIAnnotation
 } = require("./annotationChanges");
 const updateSchema = require("./updateSchema");
 const findFiles = require("./findFiles");
@@ -67,8 +68,10 @@ const setup_db = async (source, destination, option) => {
     removeSeriesFunction(".");
     console.log("Replace @Comment with /* */");
     commentAnnotation(".");
-    console.log("Removing annotations file....");
+    console.log("Remove annotations file");
     removeAnnotation(".");
+    console.log("Changing @UI annotations");
+    modifyUIAnnotation(".");
     // console.log("Modify the annotation syntax");
     // annotationUpdate("./cds");
     console.log("Remove Schema");

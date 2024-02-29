@@ -49,8 +49,22 @@ The **buildTasks** function works as follows:
 - It additionally adds a build task for the "nodejs" platform, specifically for the "srv" service module, with its model definitions in the "db", "srv" and "app" folders.
 
 The **callcalculation** function works as follows:
-
--
+- This function performs a series of operations on files based on settings from a configuration template file (*config.json.tpl*). 
+The steps are as follows:
+1. Changes the current working directory to *CURR_DIR*.
+2. Reads data from the *config.json.tpl*.
+3. Replaces the placeholder *{CAP_DIR}* in the read data with the *CAP_DIR* value.
+4. Writes the updated data to a new *config.json* file.
+5. Reads this new configuration file and parses its content as JSON.
+6. Loops through each 'migration' item in the parsed JSON data. Each *migration* contains a list of *fileExts* and *strategies*.
+   - For each file extension in *fileExts*, it uses the *glob* function to find all matching files in the *config.scanPath* and ignoring any paths specified in *config.ignorePaths*.
+   - For each found file, it loops through each *strategy* in *strategies`. These strategies specify operations (or transformations) to apply on the file.
+   - If *StrategyFactory* contains a strategy of the given name, it:
+     - Reads the file's content.
+     - Configures the strategy object with *strategy.config*.
+     - Processes the file content using the strategy and gets the modified content.
+     - Writes the modified content back to the original filename with an extra extension specified in *config.fileExt*.
+   - If the *StrategyFactory* does not contain a strategy of the given name, it logs a message that the strategy was not found and skips the file.
 
 The **formatcds** function works as follows:
 
@@ -158,7 +172,7 @@ The process of setting up the db folder is defined in `setup_db`, which contains
 
 - For each .cds file, it replaces every instance of a comment formatted as @Comment : "text" with a JavaScript style multi-line comment /\*\* _ text _/.
 
-21. `annotationUpdate` +++++
+21. `annotationUpdate`
 
 - It iterates through each .cds file.
 - In each file, the function reads its content line by line. It identifies whether each line is a context definition, an annotation block, or any other line.
@@ -183,3 +197,7 @@ The process of setting up the db folder is defined in `setup_db`, which contains
   - Runs a shell command to compile the '.cds' file, redirecting any errors to the temporary log file.
   - If the tmp log file is not empty (indicating there were compilation errors), it renames and moves this file to the 'logs' folder, appending the current timestamp and '.errors.log' to the original filename.
   - If the tmp log file is empty (indicating no errors during compilation), it removes this temporary file.
+
+24. `removeAnnotation` function deletes the annotations.cds file. Following that, it looks for and eliminates all instances where the annotation file is being used within all '.cds' files.
+
+25. `modifyUIAnnotation` function adjusts all occurrences of UI annotations in accordance with the CAP Standards. This involves changing the first letter following the UI. prefix to uppercase. For instance, it transforms @UI.lineItem to @UI.LineItem.
