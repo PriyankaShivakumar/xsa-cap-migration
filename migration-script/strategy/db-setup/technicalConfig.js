@@ -23,7 +23,8 @@ const technicalConfig = (directory, option) => {
               if (techConfigValue === "") {
                 return `\n${p1}`;
               } else {
-                return `\n@sql.append: \`\`\`\n  technical configuration {\n    ${techConfigValue}\n  }\n\`\`\`\n${p1}`;
+                techConfigValue = techConfigValue.replace(/\;\s*$/, "");
+                return `\n@sql.append: \`\`\`\n      ${techConfigValue}  \n\`\`\`\n${p1}`;
               }
             } else {
               techConfigValue = p2
