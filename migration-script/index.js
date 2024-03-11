@@ -8,6 +8,7 @@ const buildTasks = require("./strategy/addBuildTasks");
 const callcalculation = require("./strategy/callCalculation");
 const compileAndRedirect = require("./strategy/compileAndRedirect");
 const formatcds = require("./strategy/formatCds");
+const addHdbcdsFormat = require("./strategy/addHdbcdsFormat");
 
 const main = async () => {
   try {
@@ -26,6 +27,7 @@ const main = async () => {
     setup_app(CAP_DIR, XSA_DIR, APPNAME);
     odataV2Support(CAP_DIR);
     buildTasks(CONTAINER_NUM);
+    addHdbcdsFormat(option)
     callcalculation(CURR_DIR, CAP_DIR);
     //compileAndRedirect(CAP_DIR);
     formatcds(CAP_DIR);
