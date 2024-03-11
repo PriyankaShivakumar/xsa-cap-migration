@@ -31,12 +31,16 @@ const technicalConfig = (directory, option) => {
                 .replace(/column\s*store[\s\S]*?;/gi, "")
                 .replace(/row\s*store[\s\S]*?;/gi, "")
                 .trim();
-              techConfigValue = techConfigValue.replace(/\;\s*$/, "");
-              techConfigValue = techConfigValue.replace(/\s\s+/g, " ");
+              const techConfigValueArray = techConfigValue.split(";");
+              techConfigValue = techConfigValue.replace(/\;/g, "\n");
               if (techConfigValue === "") {
                 return `\n${p1}`;
               } else {
-                return `@sql.append: \`${techConfigValue}\`\n${p1}`;
+                if (techConfigValueArray.length <= 1) {
+                  return `@sql.append: \`${techConfigValue}\`\n${p1}`;
+                } else {
+                  return `@sql.append: \`\`\`\n ${techConfigValue}\n\`\`\`\n${p1}`;
+                }
               }
             }
           }
