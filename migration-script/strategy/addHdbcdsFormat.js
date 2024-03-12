@@ -5,9 +5,9 @@ const addHdbcdsFormat = (options) => {
         console.log("Add Hdbcds Format tasks");
         const data = fs1.readFileSync("package.json", "utf8");
         const packageJson = JSON.parse(data);
-        const option = [null, 'hdbcds', 'hdbtable'];
+        const option = [null, 'hdbcds', 'hdbtable',"hdbtable"];
 
-        if (options >= 1 && options <= 2) {
+        if (options >= 1 && options <= 3) {
             if (!packageJson.cds) {
                 packageJson.cds = {};
             }

@@ -9,12 +9,14 @@ async function getParams() {
       "\n" +
       "2. XSC to CAP" +
       "\n" +
-      "Enter 1 or 2: ";
+      "3. hdbcds to hdbtable (Assuming already in hdbcds format)" +
+      "\n" +
+      "Enter 1 or 2 or 3: ";
     const option = await askQuestion(questionOP);
-    if (!isNaN(option) && (option == 1 || option == 2)) {
+    if (!isNaN(option) && (option == 1 || option == 2 || option == 3)) {
       process.env.option = option;
     } else {
-      console.log("Invalid input!! Please enter either 1 or 2");
+      console.log("Invalid input!! Please enter either 1 or 2 or 3");
       return await getParams();
     }
     const cap = await askQuestion(
