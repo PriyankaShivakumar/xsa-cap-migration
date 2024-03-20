@@ -80,7 +80,7 @@ const removeAnnotation = (directory) => {
       .filter((file) => file.endsWith(".cds"));
     cdsFiles.forEach(function (file) {
       let fileData = fs1.readFileSync(file, "utf8");
-      let regex = /(?<=\n)[^\n]*from\s'\.\/annotations';[^\n]*(?=\n)/g;
+      let regex = /(?<=\n)[^\n]*from\s'\.\/annotations';[^\n]*(?=\n)|\bannotation\b\s\w+:\s\w+\(\d+\);/g;
       let updatedData = fileData.replace(regex, "");
       fs1.writeFileSync(file, updatedData, "utf8");
     });
