@@ -1,0 +1,181 @@
+{
+    "role": {
+        "name": "LM::PublicAccessObjects#",
+        "object_privileges": [
+            {
+                "name": "LM::CAL",
+                "type": "VIEW",
+                "privileges_with_grant_option": [
+                    "SELECT"
+                ]
+            },
+            {
+                "name": "LM::lalproc",
+                "type": "PROCEDURE",
+                "privileges_with_grant_option": [
+                    "EXECUTE"
+                ]
+            },
+            {
+                "name": "LM::EPM.ValidityT",
+                "type": "StructuredType",
+                "privileges_with_grant_option": [
+                    "SELECT"
+                ]
+            },
+            {
+                "name": "LM::EPM.VLString",
+                "type": "ScalarType",
+                "privileges_with_grant_option": [
+                    "SELECT"
+                ]
+            },
+            {
+                "name": "LM::EPM.UnitT",
+                "type": "ScalarType",
+                "privileges_with_grant_option": [
+                    "SELECT"
+                ]
+            },
+            {
+                "name": "LM::EPM.StatusT",
+                "type": "ScalarType",
+                "privileges_with_grant_option": [
+                    "SELECT"
+                ]
+            },
+            {
+                "name": "LM::EPM.Source",
+                "type": "ScalarType",
+                "privileges_with_grant_option": [
+                    "SELECT"
+                ]
+            },
+            {
+                "name": "LM::EPM.SString",
+                "type": "ScalarType",
+                "privileges_with_grant_option": [
+                    "SELECT"
+                ]
+            },
+            {
+                "name": "LM::EPM.SDate",
+                "type": "ScalarType",
+                "privileges_with_grant_option": [
+                    "SELECT"
+                ]
+            },
+            {
+                "name": "LM::EPM.QuantityT",
+                "type": "ScalarType",
+                "privileges_with_grant_option": [
+                    "SELECT"
+                ]
+            },
+            {
+                "name": "LM::EPM.PhoneT",
+                "type": "ScalarType",
+                "privileges_with_grant_option": [
+                    "SELECT"
+                ]
+            },
+            {
+                "name": "LM::EPM.MyAnnotation1",
+                "type": "Annotation",
+                "privileges_with_grant_option": [
+                    "SELECT"
+                ]
+            },
+            {
+                "name": "LM::EPM.MapKeys",
+                "type": "Entity",
+                "privileges_with_grant_option": [
+                    "SELECT"
+                ]
+            },
+            {
+                "name": "LM::EPM.MString",
+                "type": "ScalarType",
+                "privileges_with_grant_option": [
+                    "SELECT"
+                ]
+            },
+            {
+                "name": "LM::EPM.LString",
+                "type": "ScalarType",
+                "privileges_with_grant_option": [
+                    "SELECT"
+                ]
+            },
+            {
+                "name": "LM::EPM.ISOLanguageT",
+                "type": "ScalarType",
+                "privileges_with_grant_option": [
+                    "SELECT"
+                ]
+            },
+            {
+                "name": "LM::EPM.CurrencyT",
+                "type": "ScalarType",
+                "privileges_with_grant_option": [
+                    "SELECT"
+                ]
+            },
+            {
+                "name": "LM::EPM.BusinessKey",
+                "type": "ScalarType",
+                "privileges_with_grant_option": [
+                    "SELECT"
+                ]
+            },
+            {
+                "name": "LM::EPM.AmountT",
+                "type": "ScalarType",
+                "privileges_with_grant_option": [
+                    "SELECT"
+                ]
+            },
+            {
+                "name": "LM::EPM.ABAPLanguage",
+                "type": "ScalarType",
+                "privileges_with_grant_option": [
+                    "SELECT"
+                ]
+            },
+            {
+                "name": "LM::EPM.ABAPDate",
+                "type": "ScalarType",
+                "privileges_with_grant_option": [
+                    "SELECT"
+                ]
+            },
+            {
+                "name": "LM::EPM",
+                "type": "Context",
+                "privileges_with_grant_option": [
+                    "SELECT"
+                ]
+            },
+            {
+                "name": "LM::TABLES",
+                "type": "Context",
+                "privileges_with_grant_option": [
+                    "SELECT"
+                ]
+            },
+            {
+                "name": "LM::TABLES.CUST_REV_CDS",
+                "type": "Entity",
+                "privileges_with_grant_option": [
+                    "SELECT"
+                ]
+            },
+            {
+                "name": "LM::lalproc",
+                "privileges_with_grant_option": [
+                    "SELECT"
+                ]
+            }
+        ]
+    }
+}

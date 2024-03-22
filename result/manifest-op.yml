@@ -1,0 +1,20 @@
+---
+  applications:
+  - name: LM-db
+    path: db
+    memory: 256M
+    no-route: true
+    services:
+      - LM-hdi
+      
+    env:
+      TARGET_CONTAINER: LM-hdi
+
+  - name: LM-xsjs-service
+    port: [xsjs-service-port]
+    path: async_xsjs
+    memory: 128M
+    services:
+      - uaa
+      - LM-hdi
+

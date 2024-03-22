@@ -1,0 +1,156 @@
+[
+    {
+        "_schemaName": "_SYS_BIC",
+        "_objectName": "LM::CAL",
+        "_objectType": "VIEW"
+    },
+    {
+        "_schemaName": "_SYS_BIC",
+        "_objectName": "LM/CAL/Measures/hier/Measures",
+        "_objectType": "VIEW"
+    },
+    {
+        "_schemaName": "_SYS_BIC",
+        "_objectName": "LM/CAL/CUST_ID/hier/CUST_ID",
+        "_objectType": "VIEW"
+    },
+    {
+        "_schemaName": "_SYS_BIC",
+        "_objectName": "LM/CAL",
+        "_objectType": "VIEW"
+    },
+    {
+        "_schemaName": "LM",
+        "_objectName": "LM::lalproc",
+        "_objectType": "PROCEDURE"
+    },
+    {
+        "_schemaName": "_SYS_BIC",
+        "_objectName": "LM/CAL/FIRST_NAME/hier/FIRST_NAME",
+        "_objectType": "VIEW"
+    },
+    {
+        "_schemaName": "_SYS_BIC",
+        "_objectName": "LM/CAL/LAST_NAME/hier/LAST_NAME",
+        "_objectType": "VIEW"
+    },
+    {
+        "_schemaName": "LM",
+        "_objectName": "",
+        "_objectType": "SCHEMA"
+    },
+    {
+        "_schemaName": "LM",
+        "_objectName": "LM::EPM.ValidityT",
+        "_objectType": "StructuredType"
+    },
+    {
+        "_schemaName": "LM",
+        "_objectName": "LM::EPM.VLString",
+        "_objectType": "ScalarType"
+    },
+    {
+        "_schemaName": "LM",
+        "_objectName": "LM::EPM.UnitT",
+        "_objectType": "ScalarType"
+    },
+    {
+        "_schemaName": "LM",
+        "_objectName": "LM::EPM.StatusT",
+        "_objectType": "ScalarType"
+    },
+    {
+        "_schemaName": "LM",
+        "_objectName": "LM::EPM.Source",
+        "_objectType": "ScalarType"
+    },
+    {
+        "_schemaName": "LM",
+        "_objectName": "LM::EPM.SString",
+        "_objectType": "ScalarType"
+    },
+    {
+        "_schemaName": "LM",
+        "_objectName": "LM::EPM.SDate",
+        "_objectType": "ScalarType"
+    },
+    {
+        "_schemaName": "LM",
+        "_objectName": "LM::EPM.QuantityT",
+        "_objectType": "ScalarType"
+    },
+    {
+        "_schemaName": "LM",
+        "_objectName": "LM::EPM.PhoneT",
+        "_objectType": "ScalarType"
+    },
+    {
+        "_schemaName": "LM",
+        "_objectName": "LM::EPM.MyAnnotation1",
+        "_objectType": "Annotation"
+    },
+    {
+        "_schemaName": "LM",
+        "_objectName": "LM::EPM.MapKeys",
+        "_objectType": "Entity"
+    },
+    {
+        "_schemaName": "LM",
+        "_objectName": "LM::EPM.MString",
+        "_objectType": "ScalarType"
+    },
+    {
+        "_schemaName": "LM",
+        "_objectName": "LM::EPM.LString",
+        "_objectType": "ScalarType"
+    },
+    {
+        "_schemaName": "LM",
+        "_objectName": "LM::EPM.ISOLanguageT",
+        "_objectType": "ScalarType"
+    },
+    {
+        "_schemaName": "LM",
+        "_objectName": "LM::EPM.CurrencyT",
+        "_objectType": "ScalarType"
+    },
+    {
+        "_schemaName": "LM",
+        "_objectName": "LM::EPM.BusinessKey",
+        "_objectType": "ScalarType"
+    },
+    {
+        "_schemaName": "LM",
+        "_objectName": "LM::EPM.AmountT",
+        "_objectType": "ScalarType"
+    },
+    {
+        "_schemaName": "LM",
+        "_objectName": "LM::EPM.ABAPLanguage",
+        "_objectType": "ScalarType"
+    },
+    {
+        "_schemaName": "LM",
+        "_objectName": "LM::EPM.ABAPDate",
+        "_objectType": "ScalarType"
+    },
+    {
+        "_schemaName": "LM",
+        "_objectName": "LM::EPM",
+        "_objectType": "Context"
+    },
+    {
+        "_schemaName": "LM",
+        "_objectName": "LM::TABLES",
+        "_objectType": "Context"
+    },
+    {
+        "_schemaName": "LM",
+        "_objectName": "LM::TABLES.CUST_REV_CDS",
+        "_objectType": "Entity"
+    },
+    {
+        "_schemaName": "LM",
+        "_objectName": "LM::lalproc"
+    }
+]

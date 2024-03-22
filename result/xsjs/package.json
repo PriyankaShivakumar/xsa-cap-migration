@@ -1,0 +1,19 @@
+{
+  "name": "LM-xsjs-service",
+  "description": "",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "node --experimental-vm-modules main.js",
+    "stop": ""
+  },
+  "files": [],
+  "dependencies": {
+    "@sap/xsenv": "^4.2.0",
+    "@sap/async-xsjs": "^2.0.0",
+    "@sap/cds": "^7.5.0"
+  },
+  "engines": {
+      "node": "20.x"
+  }
+}

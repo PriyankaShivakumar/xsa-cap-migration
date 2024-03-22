@@ -1,0 +1,20 @@
+migrated file:  currConv.xsjs 
+
+migrated file:  poWorklistQuery.xsjs 
+
+migrated file:  main.js 
+
+getFilter has been made async
+
+getTotalOrders has been made async
+
+downloadExcel has been made async
+
+downloadZip has been made async
+
+Deleted: /home/user/projects/result/async_xsjs/lib/LM/currConv.xsjs.ast.json
+
+Deleted: /home/user/projects/result/async_xsjs/lib/LM/poWorklistQuery.xsjs.ast.json
+
+Deleted: /home/user/projects/result/async_xsjs/main.js.ast.json
+

@@ -1,0 +1,34 @@
+_schema-version: 2.0
+ID: LM
+description: 
+version: 0.0.0
+
+modules:
+  - name: LM-db
+    type: hdb
+    path: db
+    requires:
+      - name: LM-hdi
+        properties:
+            TARGET_CONTAINER: ~{service-name}
+
+  - name: LM-xsjs-service
+    path: async_xsjs
+    type: nodejs
+    requires:
+      - name: LM-hdi
+      - name: LM-db
+      - name: uaa
+    provides:
+      - name: xsjs
+        properties:
+           url: ${default-url}
+
+
+resources:
+  - name: LM-hdi
+    type: com.sap.xs.hdi-container
+    properties:
+        service-name: ${service-name}
+  - name: uaa
+    type: com.sap.xs.uaa-space

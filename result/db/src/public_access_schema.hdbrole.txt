@@ -1,0 +1,13 @@
+{
+    "role": {
+        "name": "LM::PublicAccessSchema",
+        "schema_privileges": [
+            {
+                "privileges": [
+                    "SELECT",
+                    "EXECUTE"
+                ]
+            }
+        ]
+    }
+}
