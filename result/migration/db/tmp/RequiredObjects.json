@@ -1,1 +1,0 @@
-[{"requiredObjects":[{"schema":"LM","synonym":"LM__LM::TABLES.CUST_REV_CDS","name":"LM::TABLES.CUST_REV_CDS"},{"schema":"LM","synonym":"LM__LM::TABLES.CUST_REV_CDS","name":"LM::TABLES.CUST_REV_CDS"},{"schema":"LM","synonym":"LM__LM::TABLES.CUST_REV_CDS","name":"LM::TABLES.CUST_REV_CDS"}],"targetFiles":".\/LM\/CAL.hdbcalculationview","sourceFile":".\/LM\/CAL.calculationview"}]
