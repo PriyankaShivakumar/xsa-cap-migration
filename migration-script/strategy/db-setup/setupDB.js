@@ -26,6 +26,7 @@ const {
 const updateSchema = require("./updateSchema");
 const findFiles = require("./findFiles");
 const inlineConfig = require("./inlineConfig");
+const formatcds = require("../formatCds")
 
 const setup_db = async (source, destination, option) => {
   try {
@@ -36,14 +37,16 @@ const setup_db = async (source, destination, option) => {
     modifyHdiNamespace(destination);
     console.log("Convert hdbcds to cds");
     convertHdbcdsToCds(".", ".hdbcds", ".cds");
+    console.log("Comment or remove the deprecated functionalities");
+    removeDeprecated();
+    console.log("format cds files")
+    formatcds(destination)
     console.log("Using Calculation Views Modification");
     calViewModification();
     console.log("Modify the view notation");
     modifyViewNotation();
     console.log("Change Datatypes");
     changeDataTypes();
-    console.log("Comment or remove the deprecated functionalities");
-    removeDeprecated();
     console.log("Replace @OData.publish:true with @cds.autoexpose");
     replaceOdata();
     console.log("Move the cds files to db folder");

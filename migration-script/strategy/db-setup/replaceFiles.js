@@ -8,11 +8,12 @@ const replaceSimpleUsingInFiles = (directory) => {
       try {
         const data = fs1.readFileSync(file, "utf8");
         if (data.includes("::")) return;
-        let regex = /(using\s+)([^\s;]+)(?:\s+as\s+([^\s.;]+))?;/g;
+        let regex = /(using\s+)([^\s;]+)\s*:\s*:\s*([^\s;]+(?:\.[^\s;]+)*);/g;
         let result = data.replace(regex, function (_, p1, p2, p3) {
-          let pack = p2;
-          let alias = p3 || p2.split(".").pop();
-          return `${p1}${pack} as ${alias} from './${p2.split(".")[0]}';`;
+          let pack = p2+"."+p3;
+          let alias = p3.includes(".") ? p3.split(".").pop() : p3;
+          let moduleName = p3.includes(".") ? p3.split(".")[0] : p3;
+          return `${p1}${pack} as ${alias} from './${moduleName}';`;
         });
         fs1.writeFileSync(file, result, "utf8");
       } catch (err) {
