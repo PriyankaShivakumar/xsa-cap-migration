@@ -28,6 +28,7 @@ const inlineConfig = (directory) => {
               !captureGroup2.includes("default") &&
               !captureGroup2.includes("enum") &&
               captureGroup2 !== "" &&
+              !captureGroup2.includes("select") &&
               !captureGroup2.includes("null") &&
               !/^=/.test(captureGroup2.trim()) &&
               !/^\d/.test(captureGroup2.trim())
