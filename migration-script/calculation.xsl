@@ -181,27 +181,13 @@
         <xsl:value-of select="concat($prefix, $transformed_text)"/>
     </xsl:template>
 
-  <xsl:template match="targetVariable/@resourceUri">
-    <xsl:attribute name="resourceUri">
-        <xsl:choose>
-            <xsl:when test="contains(., 'undefined::')">
-                <xsl:call-template name="prefixAndTransform">
-                    <xsl:with-param name="prefix" select="'undefined::'"/>
-                    <xsl:with-param name="text" select="substring-after(., 'undefined::')"/>
-                </xsl:call-template>
-            </xsl:when>
-            <xsl:when test="contains(., '/undefined/calculationviews/')">
-                <xsl:call-template name="prefixAndTransform">
-                    <xsl:with-param name="prefix" select="'/undefined/calculationviews/'"/>
-                    <xsl:with-param name="text" select="substring-after(., '/undefined/calculationviews/')"/>
-                </xsl:call-template>
-            </xsl:when>
-            <xsl:otherwise>
-                <xsl:value-of select="."/>
-            </xsl:otherwise>
-        </xsl:choose>
-    </xsl:attribute>
-</xsl:template>
+    <xsl:template match="targetVariable/@resourceUri">
+        <xsl:attribute name="resourceUri">
+          <xsl:call-template name="prefixAndTransform">
+            <xsl:with-param name="text" select="."/>
+          </xsl:call-template>
+        </xsl:attribute>
+    </xsl:template>
 
     <xsl:template match="keyMapping/@columnName">
         <xsl:attribute name="columnName">
