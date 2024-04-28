@@ -8,6 +8,7 @@ const dataTypes = [
   "LocalDate",
   "VARCHAR",
   "TINYINT",
+  "LargeString"
 ];
 
 const inlineConfig = (directory) => {
@@ -24,6 +25,7 @@ const inlineConfig = (directory) => {
         fileData = fileData.replace(
           regex,
           (match, captureGroup1, captureGroup2) => {
+            captureGroup2 = captureGroup2.replace(/\s+/g, ' ').trim();
             if (
               !captureGroup2.includes("default") &&
               !captureGroup2.includes("enum") &&
