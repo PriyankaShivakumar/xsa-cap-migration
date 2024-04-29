@@ -176,6 +176,23 @@ const formatTableStatement = (sqlStatement) => {
   return formatted;
 }
 
+
+const checkIfNumberAndBracket = (matches) =>{
+  let matchesType = matches[1]
+  const typeLengthBrackets = /\(\d+\)/g;
+  const rightBracket = /\d+\)/;
+  const leftBracket = /\(\d+/;
+  if(matches[2] !== undefined){
+    if(matches[2].match(typeLengthBrackets)) {
+      return matchesType + matches[2]
+    }else if(matches[2].match(rightBracket)){
+      return matchesType + matches[2]
+    }else if(matches[3] !== undefined && matches[2].match(leftBracket) && matches[3].match(rightBracket))
+    return matchesType + matches[2] + matches[3]
+  }
+  return matchesType
+}
+
 const convertToCds = (data) =>{
 
   const sqlDataTypes = ['NVARCHAR','BOOLEAN','SHORTTEXT','REAL','ALPHANUM','DECIMAL','SMALLDECIMAL','DAYDATE','BINARY','VARBINARY','INTEGER','INT','TINYINT','SMALLINT','MEDIUMINT','BIGINT','NUMERIC','FLOAT','DOUBLE','NCHAR','CHAR','VARCHAR','TEXT','DATE','TIME','DATETIME','LONGDATE','TIMESTAMP','SECONDDATE','NCLOB','BLOB','ST_POINT','ST_GEOMETRY','CLOB'];
@@ -203,11 +220,7 @@ const convertToCds = (data) =>{
       let matches = columnLine.split(" ").filter(Boolean);
       if(matches.length > 1 && sqlDataTypes.includes(dataTypesCleanUp(matches[1]).split('(')[0].replace(/['"]+/g, '').toUpperCase().trim())){
         let name = matches[0].replace(/"/g, '').replace(/\)+/, '').trim().replace(/\./g, '_').toUpperCase();
-        let matchesType = matches[1]
-        let lengthTypesReg = /\(\d+\)/g;
-        if(matches[2]!==undefined && matches[2].match(lengthTypesReg)) {
-          matchesType = matchesType + matches[2]
-        }
+        let matchesType = checkIfNumberAndBracket(matches)
         if (name !== "COMMENT") {
             for(let j=0;j<keyNamesArray.length;j++){
               if (name === keyNamesArray[j]) {
