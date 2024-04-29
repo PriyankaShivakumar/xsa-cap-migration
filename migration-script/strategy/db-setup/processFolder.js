@@ -1,5 +1,6 @@
 const fs1 = require("fs");
 const path = require("path");
+const shell = require("shelljs");
 
 const processFolder = (directory) => {
   try {
@@ -68,9 +69,129 @@ const createhdbtabletype = (file) => {
         } else {
           let [colName, colType] = line.trim().split(/\s*:\s*/);
           if (colName && colType) {
+            let entity;
+            if (
+              colType.includes(".") &&
+              !colType.includes("Association") &&
+              !colType.includes("hana")
+            ) {
+              entity = colType.split(".")[0];
+              console.log("entitytyyy", entity);
+              unsupportedCol = colType.split(".")[1].replace(";", "");
+              //console.log("Entityyy", entity);
+              try {
+                const pattern = new RegExp(
+                  `using\\s+(\\S+)\\s+as\\s+${entity}\\b`
+                );
+                const match = data.match(pattern);
+                let entityVal = match && match[1] ? match[1] : entity;
+                console.log("entityyy aval", entityVal);
+                //if (entityVal !== null) {
+                //console.log("entityyyyy vallll", entityVal);
+                const entityFile = shell
+                  .find(process.cwd())
+                  .filter((file) => file.endsWith(entityVal + ".cds"));
+                //console.log("enrityyyyyy", entityFile);
+                const entityData = fs1.readFileSync(entityFile[0], "utf8");
+                //console.log("entityyyy data", entityData);
+                const lines = entityData.split("\n");
+                const dataTypeLines = lines.filter((line) =>
+                  line.includes(unsupportedCol)
+                );
+                //console.log("Linensjndkjw", lines.length);
+                console.log("lineeeee", dataTypeLines[0]);
+                if (dataTypeLines[0].includes(":")) {
+                  colType = dataTypeLines[0].split(":")[1].replace(";", "");
+                }
+                // const pattern = new RegExp(
+                //   unsupportedCol + "\\s*{([^}]*)}",
+                //   "s"
+                // );
+                // const match = entityData.match(pattern);
+                // if (match) {
+                //   const content = match[1].trim();
+                //   console.log("bhdwqjdhwql", content);
+                // } else {
+                //   console.log(
+                //     `${unsupportedCol} block not found in the content.`
+                //   );
+                // }
+                //   colType = dataTypeLines[0].split(":")[1].replace(";", "");
+                // }
+
+                //console.log("collll", colType);
+                // else if (!dataTypeLines[0].includes(":")) {
+                //   const entityFile = shell
+                //     .find(process.cwd())
+                //     .filter((file) => file.endsWith(entity + ".cds"));
+                //   const entityData = fs1.readFileSync(entityFile[0], "utf8");
+                //   //const linesEntity = entityData.split("\n");
+                //   const dataTypeLines = entityData
+                //     .split("\n")
+                //     .filter(
+                //       (line) =>
+                //         line.includes(unsupportedCol) && !line.includes(":")
+                //     );
+
+                //   //console.log("Linensjndkjw", lines.length);
+                //   console.log("lineeeee", dataTypeLines[0]);
+                //   //if (!dataTypeLines[0].includes(":")) {
+                //   const pattern = new RegExp(
+                //     unsupportedCol + "\\s*{([^}]*)}",
+                //     "s"
+                //   );
+                //   const match = entityData.match(pattern);
+                //   const content =
+                //     match && match[1]
+                //       ? match[1].trim()
+                //       : console.log(
+                //           `${unsupportedCol} block not found in the content.`
+                //         );
+
+                //   console.log("contentttt", content);
+
+                //   const modifiedLine = content
+                //     .split("\n")
+                //     .map((line) => {
+                //       const parts = line.split(" :");
+
+                //       parts[0] = colName + "_" + parts[0].trim();
+
+                //       return parts.join(" :");
+                //     })
+                //     .join("\n");
+
+                //   console.log("modify", modifiedLine);
+                //   const extractedLines = modifiedLine
+                //     .split("\n")
+                //     .filter((line) => line.includes("Association"));
+
+                //   console.log("extractedLines", extractedLines);
+                // }
+              } catch (err) {
+                console.error("Error reading file:", err);
+                return false;
+              }
+            }
+            //else if (colType.includes("Association")) {
+            //   let colVal = colType.split("Association to")[1].replace(";", "");
+
+            //   if(!colVal.includes(".")){
+
+            //   }
+            // }
+            // let regexPattern = new RegExp(
+            //   `^\\s*using\\s+[\\w.]+\\s+as\\s+${entity}\\s+from\\s+'.*'\\s*;\\s*$`
+            // );
+            // if (regexPattern.test(data))
+            // const file = shell.find(process.cwd()).filter((file) => file.endsWith(entity+".cds"));
+            // const data = fs1.readFileSync(file, "utf8");
+            // console.log("dataaaaa", data)
+
             args.push(
               `"${colName}" ${colType
                 .replace("String", "NVARCHAR")
+                .replace("LargeString", "NVARCHAR")
                 .replace(/;/g, "")}`
             );
             tableTypeLines.push(i);
