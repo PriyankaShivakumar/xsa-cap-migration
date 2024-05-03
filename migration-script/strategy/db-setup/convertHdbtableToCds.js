@@ -15,7 +15,7 @@ const reportHdbtableToCds = () =>{
 const convertHdbtableToCds = (directory, extension) => {
   try {
     const files = shell.find(directory).filter((file) => file.endsWith(extension));
-    let proxyCdsArray = []
+    let proxyCdsArray = ['namespace PROXYTABLE;']
     let proxySynonymArray = []
     files.forEach(file => {
       reportHdbtableFiles.push(file.split('/').pop())
@@ -172,7 +172,7 @@ const convertDbTypes = (types) => {
 }
 
 const convertToHdbsynonym = (tableName) =>{
-    return `"${tableName.toUpperCase().replace(/"/g, '').replace(/\./g, '_').replace(/::/g, '_')}" : {
+    return `"PROXYTABLE_${tableName.toUpperCase().replace(/"/g, '').replace(/\./g, '_').replace(/::/g, '_')}" : {
       "target": {
         "object" : ${tableName}
       }
