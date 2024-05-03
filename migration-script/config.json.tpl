@@ -33,12 +33,6 @@
               [".", "_"]
             ]
           }
-        },
-         {
-            "name": "CharReplacementCS",
-            "config": {
-                "regex": "CS_\\w+"
-            }
         }
       ]
     },

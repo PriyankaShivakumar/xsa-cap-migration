@@ -3,25 +3,39 @@ const shell = require("shelljs");
 const  {format} = require('sql-formatter')
 
 
+let reportHdbtableFiles = []
+let reportCdsFiles = []
+let reportSynonymFile = []
+
+
+const reportHdbtableToCds = () =>{
+  return {reportHdbtableFiles,reportCdsFiles,reportSynonymFile}
+}
+
 const convertHdbtableToCds = (directory, extension) => {
   try {
     const files = shell.find(directory).filter((file) => file.endsWith(extension));
     let proxyCdsArray = []
     let proxySynonymArray = []
     files.forEach(file => {
+      reportHdbtableFiles.push(file.split('/').pop())
       let data = readFileSync(file, "utf8");
       let { newFileContent, planeColumnQuotedTable} = convertToCds(data);
       if(newFileContent) proxyCdsArray.push(newFileContent);
       if(planeColumnQuotedTable) proxySynonymArray.push(planeColumnQuotedTable);
     });
-    if(proxyCdsArray.length > 0) writeFileSync('Proxy_Table.cds',proxyCdsArray.join("\n\n"));
+    if(proxyCdsArray.length > 0){ 
+      writeFileSync('Proxy_Table.cds',proxyCdsArray.join("\n\n"))
+      reportCdsFiles.push("Proxy_Table.cds")
+    }
     if(proxySynonymArray.length > 0) { 
       let jsonString = proxySynonymArray.join(",\n"); 
       let result = '{\n' + jsonString + '\n}';      
       writeFileSync('src/Proxy_Table.hdbsynonym', result); 
+      reportSynonymFile.push("Proxy_Table.hdbsynonym")
   }
   } catch (error) {
-    console.error(`Error: ${error}`);
+    console.error(`Error converting Hdbtable to cds: ${error}`);
   }
 };
 
@@ -158,7 +172,7 @@ const convertDbTypes = (types) => {
 }
 
 const convertToHdbsynonym = (tableName) =>{
-    return `"${tableName.toUpperCase() .replace(/"/g, '').replace(/\./g, '_').replace(/::/g, '_')}" : {
+    return `"${tableName.toUpperCase().replace(/"/g, '').replace(/\./g, '_').replace(/::/g, '_')}" : {
       "target": {
         "object" : ${tableName}
       }
@@ -236,6 +250,9 @@ const convertToCds = (data) =>{
     }
   }
 
+  let isEntityQuoted = tableName.includes('"')
+  let planeColumnQuotedTable = isEntityQuoted ? convertToHdbsynonym(tableName) : undefined;
+
   let associationDetails = [];
   if(data.includes("ASSOCIATIONS") && data.includes("JOIN")){
     const splitdata = data.split("\n")
@@ -246,23 +263,7 @@ const convertToCds = (data) =>{
       }
     })
   }
-  //CHECK 3 DIFFERENT CASES
-  let isEntityQuoted = tableName.includes('"')
-  let columnQuote = false;
-  if(isEntityQuoted){
-    for(let i =1; i < lines.length; i++){
-      const columnLine = lines[i].trim().replace(/COMMENT.*$/, '');
-      if(columnLine !== ""){
-        let matches = columnLine.split(" ").filter(Boolean);
-        if(matches.length > 1 && sqlDataTypes.includes(dataTypesCleanUp(matches[1]).split('(')[0].replace(/['"]+/g, '').toUpperCase().trim())){
-          columnQuote = matches[0].includes('"')
-          break
-        }
-      }
-    }
-  }
-  let planeColumnQuotedTable = isEntityQuoted ? convertToHdbsynonym(tableName) : undefined;
-  
+ 
   const newFileContent = [
     `@cds.persistence.exists`,
     `Entity ${entityName} {`,
@@ -277,4 +278,4 @@ const convertToCds = (data) =>{
   }
 }
 
-module.exports = {convertHdbtableToCds,convertDbTypes};
+module.exports = {convertHdbtableToCds,convertDbTypes,reportHdbtableToCds};

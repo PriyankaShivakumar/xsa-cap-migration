@@ -28,7 +28,7 @@ const findFiles = require("./findFiles");
 const {convertHdbtableToCds} = require("./convertHdbtableToCds");
 const inlineConfig = require("./inlineConfig");
 const formatcds = require("../formatCds");
-const convertCalcviewToCds = require("./convertCalcviewToCds");
+const {convertCalcviewToCds} = require("./convertCalcviewToCds");
 
 const setup_db = async (source, destination, option) => {
   try {

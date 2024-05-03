@@ -4,6 +4,14 @@ const {readFileSync,writeFileSync,appendFileSync} = require('fs');
 const {hanaDbConnection, disconnectConnection} = require('./hanaDbConnection');
 const { convertDbTypes } = require("./convertHdbtableToCds");
 
+
+let reportHdbcalculationFiles = []
+let reportCdsFiles = []
+
+const reportHdbcalculationToCds = () =>{
+    return {reportHdbcalculationFiles,reportCdsFiles}
+}
+
 const convertToProxyCds = (data,destination) =>{
     let indexContent = "";
     const originalDir = process.cwd();
@@ -32,6 +40,7 @@ const convertToProxyCds = (data,destination) =>{
             if(finalResult.length > 0) {
                 indexContent = indexContent.concat(`using from './cds/${entityName}';\n`);
                 writeFileSync(`${entityName}.cds`, finalResult);
+                reportCdsFiles.push(`${entityName}.cds`)
             }
         }
     }
@@ -89,6 +98,7 @@ const convertCalcviewToCds =  async(directory, extension,destination) => {
         const calViewIds = []
         if(files.length > 0){
             for (const file of files) {
+                reportHdbcalculationFiles.push(file.split('/').pop())
                 let xmlString = readFileSync(file, "utf8");
                 const parser = new xml2js.Parser();
                 parser.parseString(xmlString, (err, result) => {
@@ -105,5 +115,5 @@ const convertCalcviewToCds =  async(directory, extension,destination) => {
     }
 }; 
 
-module.exports = convertCalcviewToCds
+module.exports = {convertCalcviewToCds,reportHdbcalculationToCds}
 
