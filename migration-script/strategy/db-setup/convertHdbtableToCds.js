@@ -15,7 +15,7 @@ const reportHdbtableToCds = () =>{
 const convertHdbtableToCds = (directory, extension) => {
   try {
     const files = shell.find(directory).filter((file) => file.endsWith(extension));
-    let proxyCdsArray = ['namespace PROXYTABLE;']
+    let proxyCdsArray = []
     let proxySynonymArray = []
     files.forEach(file => {
       reportHdbtableFiles.push(file.split('/').pop())
@@ -25,7 +25,7 @@ const convertHdbtableToCds = (directory, extension) => {
       if(planeColumnQuotedTable) proxySynonymArray.push(planeColumnQuotedTable);
     });
     if(proxyCdsArray.length > 0){ 
-      writeFileSync('Proxy_Table.cds',proxyCdsArray.join("\n\n"))
+      writeFileSync('Proxy_Table.cds', 'context PROXYTABLE  {\n' + proxyCdsArray.join('\n\n') + '\n}')
       reportCdsFiles.push("Proxy_Table.cds")
     }
     if(proxySynonymArray.length > 0) { 
