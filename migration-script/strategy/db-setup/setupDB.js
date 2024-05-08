@@ -29,6 +29,7 @@ const {convertHdbtableToCds} = require("./convertHdbtableToCds");
 const inlineConfig = require("./inlineConfig");
 const formatcds = require("../formatCds");
 const {convertCalcviewToCds} = require("./convertCalcviewToCds");
+const convertHdbfunctionToCds = require("./convertHdbfunctionToCds");
 
 const setup_db = async (source, destination, option) => {
   try {
@@ -41,6 +42,8 @@ const setup_db = async (source, destination, option) => {
     convertHdbcdsToCds(".", ".hdbcds", ".cds");
     console.log("Convert hdbtable to cds");
     convertHdbtableToCds(".", ".hdbtable")
+    console.log("Convert hdbfunction to cds");
+    convertHdbfunctionToCds(".", ".hdbfunction")
     console.log("Convert hdbcalculationview to cds");
     convertCalcviewToCds(".", ".hdbcalculationview",destination)
     console.log("Comment or remove the deprecated functionalities");
