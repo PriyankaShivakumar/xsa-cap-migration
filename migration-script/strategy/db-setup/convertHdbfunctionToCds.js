@@ -30,8 +30,17 @@ const convertToCds = (entity,inputParameter,returnTable) =>{
 
 const extractFieldAndTypes = (data)=>{
 
-    let entity = data.split(' ')[1].replace('"','').replace('"','').replace(/\./g, '_').replace(/::/g, '_');
     data = data.toUpperCase().replace(/,\s*.*\s+TABLE.*\)\s+\)\s+(RETURNS)/is, ') ' + "$1");
+    let splitEntity = data.match(/FUNCTION\s+"?([^"(]+)/)
+    let entity = ''
+    if(splitEntity){
+        entity = splitEntity[1].replace(/\./g, '_').replace(/::/g, '_');
+    }
+    let pattern = /,(.*?TABLE.*?)RETURNS/s;
+    let match = data.match(pattern);
+    if(match){
+        data = data.replace(match[1], ')');
+    }
     let parametersString = data.substring(data.indexOf("(") + 1, data.toUpperCase().indexOf("RETURNS") - 2).trim();
     parametersString = parametersString.replace(/\)$/, '').split(/,+(?![^()]*\))/).map(item => item.trim());
     let inputParameter = parametersString
