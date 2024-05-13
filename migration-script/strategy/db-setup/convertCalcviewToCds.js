@@ -6,10 +6,10 @@ const { convertDbTypes } = require("./convertHdbtableToCds");
 
 
 let reportHdbcalculationFiles = []
-let reportCdsFiles = []
+let reportCalcCdsFiles = []
 
 const reportHdbcalculationToCds = () =>{
-    return {reportHdbcalculationFiles,reportCdsFiles}
+    return {reportHdbcalculationFiles,reportCalcCdsFiles}
 }
 
 const convertToProxyCds = (data,destination) =>{
@@ -39,8 +39,8 @@ const convertToProxyCds = (data,destination) =>{
             let finalResult = typeof output === 'string' ? output : JSON.stringify(output, null, 2);
             if(finalResult.length > 0) {
                 indexContent = indexContent.concat(`using from './cds/${entityName}';\n`);
+                reportCalcCdsFiles.push(`${entityName}.cds`)
                 writeFileSync(`${entityName}.cds`, finalResult);
-                reportCdsFiles.push(`${entityName}.cds`)
             }
         }
     }
