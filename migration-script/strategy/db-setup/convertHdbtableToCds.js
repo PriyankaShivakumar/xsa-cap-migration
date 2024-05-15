@@ -112,6 +112,7 @@ const convertDbTypes = (types) => {
     case 'DECIMAL':
       return 'Decimal';
     case 'NVARCHAR':
+    case 'STRING' :
       return 'String';
     case 'INTEGER':
     case 'INT':
@@ -209,7 +210,7 @@ const checkIfNumberAndBracket = (matches) =>{
 
 const convertToCds = (data) =>{
 
-  const sqlDataTypes = ['NVARCHAR','BOOLEAN','SHORTTEXT','REAL','ALPHANUM','DECIMAL','SMALLDECIMAL','DAYDATE','BINARY','VARBINARY','INTEGER','INT','TINYINT','SMALLINT','MEDIUMINT','BIGINT','NUMERIC','FLOAT','DOUBLE','NCHAR','CHAR','VARCHAR','TEXT','DATE','TIME','DATETIME','LONGDATE','TIMESTAMP','SECONDDATE','NCLOB','BLOB','ST_POINT','ST_GEOMETRY','CLOB'];
+  const sqlDataTypes = ['NVARCHAR','STRING','BOOLEAN','SHORTTEXT','REAL','ALPHANUM','DECIMAL','SMALLDECIMAL','DAYDATE','BINARY','VARBINARY','INTEGER','INT','TINYINT','SMALLINT','MEDIUMINT','BIGINT','NUMERIC','FLOAT','DOUBLE','NCHAR','CHAR','VARCHAR','TEXT','DATE','TIME','DATETIME','LONGDATE','TIMESTAMP','SECONDDATE','NCLOB','BLOB','ST_POINT','ST_GEOMETRY','CLOB'];
   let lines = splitLines(format(data, {language: 'postgresql'}))
   if(lines.length == 1){
     lines = splitLines(formatTableStatement(data))

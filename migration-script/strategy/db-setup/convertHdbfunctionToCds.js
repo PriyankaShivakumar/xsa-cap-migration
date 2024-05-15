@@ -2,6 +2,11 @@ const {find} = require("shelljs");
 const {writeFileSync,readFileSync} = require("fs");
 const { convertDbTypes } = require("./convertHdbtableToCds");
 
+let reportHdbfunctionFiles = [];
+let reportHdbfunctionProxyCds = []
+const reportHdbfunctionToCds = ()=>{
+    return {reportHdbfunctionFiles,reportHdbfunctionProxyCds}
+}
 
 const dataTypesCleanUp = (type) =>{
     if(type.includes('))')) {
@@ -16,16 +21,18 @@ const dataTypesCleanUp = (type) =>{
 }
 
 const convertToCds = (entity,inputParameter,returnTable) =>{
-    let entityName = entity.replace(/::/g, '_').replace(/\./g, '_');
-    let output = ""
-    output += '@cds.persistence.exists\n'
-    output += '@cds.persistence.udf\n'
-    if (inputParameter.length == 0) {
-      output += `entity ${entityName} {\n\t${returnTable.map(item => `${item.field.replace(/::/g, '_').replace(/\./g, '_')}: ${convertDbTypes(dataTypesCleanUp(item.type))}`).join(';\n\t')}\n}`
-    } else {
-      output += `entity ${entityName}(${inputParameter.map(item => `${item.field.replace(/::/g, '_').replace(/\./g, '_')}: ${convertDbTypes(dataTypesCleanUp(item.type))}`).join(', ')}) {\n\t${returnTable.map(item => `${item.field.replace(/::/g, '_').replace(/\./g, '_')}: ${convertDbTypes(dataTypesCleanUp(item.type))}`).join(';\n\t') + ';'}\n}`
+    if(returnTable && returnTable[0].type !== ''){
+        let entityName = entity.replace(/::/g, '_').replace(/\./g, '_');
+        let output = ""
+        output += '@cds.persistence.exists\n'
+        output += '@cds.persistence.udf\n'
+        if (inputParameter.length == 0) {
+          output += `entity ${entityName} {\n\t${returnTable.map(item => `${item.field.replace(/::/g, '_').replace(/\./g, '_')}: ${convertDbTypes(dataTypesCleanUp(item.type))}`).join(';\n\t')}\n}`
+        } else {
+          output += `entity ${entityName}(${inputParameter.map(item => `${item.field.replace(/::/g, '_').replace(/\./g, '_')}: ${convertDbTypes(dataTypesCleanUp(item.type))}`).join(', ')}) {\n\t${returnTable.map(item => `${item.field.replace(/::/g, '_').replace(/\./g, '_')}: ${convertDbTypes(dataTypesCleanUp(item.type))}`).join(';\n\t') + ';'}\n}`
+        }
+        return output
     }
-    return output
 }
 
 const extractFieldAndTypes = (data)=>{
@@ -42,13 +49,22 @@ const extractFieldAndTypes = (data)=>{
         data = data.replace(match[1], ')');
     }
     let parametersString = data.substring(data.indexOf("(") + 1, data.toUpperCase().indexOf("RETURNS") - 2).trim();
-    parametersString = parametersString.replace(/\)$/, '').split(/,+(?![^()]*\))/).map(item => item.trim());
-    let inputParameter = parametersString
-        .filter(item => item && item !== ')')
-        .map(item => {
-            var temp = item.toUpperCase().replace(/IN\s+|DEFAULT\s+/g, '').trim().split(/\s+/);
-            return {field: temp[0].replace(/"/g, ''), type: temp.slice(1).join(' ')}
-        });
+    parametersString = parametersString.split(/,+(?![^()]*\))/).map(item => item.trim());
+    let parameters = [];
+    let regeular = /[^,()]+(?:\([^)]*\))?/g;
+    let matches;
+
+    while ((matches = regeular.exec(parametersString)) !== null) {
+        parameters.push(matches[0].trim());
+    }
+    let inputParameter = parameters.filter(item => item && item !== ')')
+    .map(item => {
+           var temp = item.toUpperCase().replace(/IN\s+|DEFAULT\s+/g, '').replace("''",'').trim().split(/\s+/);
+           if(temp[0] !== ''){
+            return {field: temp[0], type: temp.slice(1).join(' ')};
+           }
+    })
+    .filter(item => item);
 
     let cleanData = data.toUpperCase().replace(/[\n\s]{2,}/g, ' ');
     let returnTableDefStr = cleanData.split('RETURNS')[1].split('LANGUAGE')[0].split(' AS ')[0].replace(/TABLE\(/g, '').replace(/TABLE \(/g, '');
@@ -66,11 +82,17 @@ const convertHdbfunctionToCds = (directory, extension) => {
         const files = find(directory).filter((file) => file.endsWith(extension));
         let proxyCdsArray = []
         files.forEach(file => {
+            let pattern = /,(.*?TABLE.*?)RETURNS/s;
             let data = readFileSync(file, "utf8");
-            const convertedData = extractFieldAndTypes(data);
-            if(convertedData) proxyCdsArray.push(convertedData)
+            data = data.toUpperCase()
+            if(!data.match(pattern)){
+                reportHdbfunctionFiles.push(file)
+                const convertedData = extractFieldAndTypes(data);
+                if(convertedData) proxyCdsArray.push(convertedData)
+            }
         });
         if(proxyCdsArray.length > 0){ 
+            reportHdbfunctionProxyCds.push('Proxy_Hdbfunction.cds')
             writeFileSync('Proxy_Hdbfunction.cds', proxyCdsArray.join('\n\n'))
         }
     } catch (error) {
@@ -78,4 +100,4 @@ const convertHdbfunctionToCds = (directory, extension) => {
     }
 };
 
-module.exports = convertHdbfunctionToCds
+module.exports = {convertHdbfunctionToCds,reportHdbfunctionToCds}

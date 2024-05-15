@@ -63,6 +63,29 @@ const executeQuery = async (query,connection) => {
     });
 };
 
+const removeDuplicateFields = (obj) => {
+    let clone = JSON.parse(JSON.stringify(obj));
+    const removeDuplicates = (obj) => {
+        for (let key in obj) {
+            if (Array.isArray(obj[key])) {
+                let jsonString = new Set();
+                obj[key] = obj[key].filter((fieldObj) => {
+                    let stringified = JSON.stringify(fieldObj);
+                    if (!jsonString.has(stringified)) {
+                        jsonString.add(stringified);
+                        return true;
+                    }
+                    return false;
+                });
+            } else {
+                removeDuplicates(obj[key]);
+            }
+        }
+    }
+    removeDuplicates(clone);
+    return clone;
+}
+
 const combinedOutput = async (connection,calViewIds,destination) =>{
     try {
         const combinedOutput = {};
@@ -85,7 +108,7 @@ const combinedOutput = async (connection,calViewIds,destination) =>{
             combinedOutput[id] = outputForId;
         }
         disconnectConnection()
-        convertToProxyCds(combinedOutput,destination)
+        convertToProxyCds(removeDuplicateFields(combinedOutput),destination)
         
     } catch (error) {
         console.error('Unanticipated Error processing DB:', error);
@@ -111,9 +134,9 @@ const convertCalcviewToCds =  async(directory, extension,destination) => {
             combinedOutput(connection,calViewIds,destination)
         }
     } catch (err) {
-    console.error('Error processing files:', err);
+        console.error('Error processing files:', err);
     }
 }; 
 
-module.exports = {convertCalcviewToCds,reportHdbcalculationToCds}
+module.exports = {convertCalcviewToCds,reportHdbcalculationToCds,convertToProxyCds,removeDuplicateFields,executeQuery}
 

@@ -2,8 +2,8 @@ const shell = require("shelljs");
 const fsExtra = require("fs-extra");
 const fs = require('fs');
 
-const modifyHdiNamespace = require("./modifyHdiNamespace");
-const convertHdbcdsToCds = require("./convertHdbcdsToCds");
+const {modifyHdiNamespace} = require("./modifyHdiNamespace");
+const {convertHdbcdsToCds} = require("./convertHdbcdsToCds");
 const calViewModification = require("./calViewModification");
 const changeDataTypes = require("./changeDataTypes");
 const formatRoleandTabledata = require("./formatRoleAndTabledata");
@@ -29,7 +29,7 @@ const {convertHdbtableToCds} = require("./convertHdbtableToCds");
 const inlineConfig = require("./inlineConfig");
 const formatcds = require("../formatCds");
 const {convertCalcviewToCds} = require("./convertCalcviewToCds");
-const convertHdbfunctionToCds = require("./convertHdbfunctionToCds");
+const {convertHdbfunctionToCds} = require("./convertHdbfunctionToCds");
 
 const setup_db = async (source, destination, option) => {
   try {
