@@ -12,7 +12,7 @@
       ]
     },
     {
-      "fileExts": ["hdbconstraint", "hdbindex", "hdbview", "hdbtable", "hdbsequence", "hdbprocedure", "hdbtablefunction", "hdbfunction", "hdbstructuredprivilege", "hdblibrary"],
+      "fileExts": ["hdbconstraint", "hdbindex", "hdbview", "hdbtable", "hdbsequence", "hdbprocedure", "hdbtablefunction", "hdbfunction", "hdbstructuredprivilege", "hdblibrary", "hdbdropcreatetable", "hdbsynonym"],
       "strategies": [
         {
           "name": "CharReplacementUppercase",
@@ -28,6 +28,29 @@
           "name": "CharReplacementUppercaseSingleQuote",
           "config": {
             "regex": "'[\\w\\d.::]*'",
+            "replacements": [
+              ["::", "_"],
+              [".", "_"]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "fileExts": ["hdbcalculationview"],
+      "strategies": [
+        {
+          "name": "CharReplacementDate"
+        }
+      ]
+    },
+    {
+      "fileExts": ["hdbtabletype", "hdbprocedure", "hdbrole.txt"],
+      "strategies": [
+        {
+          "name": "CharReplacementUppercase",
+          "config": {
+            "regex": "\"[^\"]*\"",
             "replacements": [
               ["::", "_"],
               [".", "_"]

@@ -273,6 +273,30 @@
          </xsl:attribute>
     </xsl:template>
 
+    <xsl:template match="externalLikeStructureName">
+        <xsl:copy>
+        <xsl:call-template name="process">
+            <xsl:with-param name="text" select="."/>
+        </xsl:call-template>
+        </xsl:copy>
+    </xsl:template>
+   
+    <xsl:template match="externalLikeStructureType">
+        <xsl:copy>
+        <xsl:call-template name="process">
+            <xsl:with-param name="text" select="."/>
+        </xsl:call-template>
+        </xsl:copy>
+    </xsl:template>
+    
+    <xsl:template match="externalLikeElementName">
+        <xsl:copy>
+        <xsl:call-template name="process">
+            <xsl:with-param name="text" select="."/>
+        </xsl:call-template>
+        </xsl:copy>
+    </xsl:template>
+    
 <xsl:template match="filter">
     <xsl:copy>
         <xsl:apply-templates select="@*|node()" />

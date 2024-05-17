@@ -56,7 +56,7 @@ const technicalConfig = (directory, option) => {
                 .replace(/row\s*store[\s\S]*?;/gi, "")
                 .trim();
               const techConfigValueArray = techConfigValue.split(";");
-              techConfigValue = techConfigValue.replace(/\;/g, "\n");
+              //techConfigValue = techConfigValue.replace(/\;/g, ";\n");
               if (techConfigValue === "") {
                 return `${comments || ""}${entity}`;
               } else {
