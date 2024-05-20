@@ -1,5 +1,6 @@
 const fs1 = require("fs");
 const path = require("path");
+const {ensureDirSync,mkdirSync,moveSync} = require('fs-extra')
 
 let reportHdbcdsFiles = []
 let reportHdbcdsToCdsFiles = []
@@ -10,6 +11,8 @@ const reportHdbcdsToCds = () =>{
 const convertHdbcdsToCds = (directory, oldExtension, newExtension) => {
   try {
     const files = fs1.readdirSync(directory, { withFileTypes: true });
+    let cdsDirectoryPath = path.join(process.cwd(), 'cds');
+    ensureDirSync(cdsDirectoryPath);
     for (let file of files) {
       if (file.isDirectory()) {
         convertHdbcdsToCds(
@@ -26,6 +29,14 @@ const convertHdbcdsToCds = (directory, oldExtension, newExtension) => {
         );
         reportHdbcdsToCdsFiles.push(path.basename(newFileName))
         fs1.renameSync(oldFileName, newFileName);
+
+        let relativePath = path.relative(newFileName.split('\\')[0], newFileName);
+        // const pathParts = relativePath.split('\\');
+        // const relevantParts = [pathParts[0], pathParts[pathParts.length - 1]];
+        // relativePath = relevantParts.join('\\');
+        ensureDirSync(path.join(cdsDirectoryPath, path.dirname(relativePath)));
+        moveSync(newFileName, path.join(cdsDirectoryPath, relativePath));
+
       }
     }
   } catch (error) {

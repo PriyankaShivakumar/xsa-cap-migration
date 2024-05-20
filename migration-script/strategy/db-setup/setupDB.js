@@ -13,6 +13,7 @@ const processFolder = require("./processFolder");
 const {
   replaceSimpleUsingInFiles,
   replaceUsingInFiles,
+  replacePatternsInFiles,
 } = require("./replaceFiles");
 const structuredPrivilege = require("./structuredPrivilege");
 const removeSeriesFunction = require("./removeSeriesFunction");
@@ -42,6 +43,8 @@ const setup_db = async (source, destination, option) => {
     convertHdbcdsToCds(".", ".hdbcds", ".cds");
     console.log("Convert hdbtable to cds");
     convertHdbtableToCds(".", ".hdbtable")
+    console.log("modify cds file replacePatternsInFiles ");
+    replacePatternsInFiles(".")
     console.log("Convert hdbfunction to cds");
     convertHdbfunctionToCds(".", ".hdbfunction")
     console.log("Convert hdbcalculationview to cds");
@@ -151,7 +154,7 @@ const replaceOdata = () => {
 const moveToDB = () => {
   shell
     .find(".")
-    .filter((file) => file.endsWith(".cds"))
+    .filter((file) => file.endsWith(".cds")  && !file.includes('cds/'))
     .forEach((file) => {
       shell.mv(file, ".");
     });
