@@ -1,6 +1,6 @@
 const fs1 = require("fs");
 const path = require("path");
-const {ensureDirSync,mkdirSync,moveSync} = require('fs-extra')
+const {ensureDirSync,moveSync} = require('fs-extra')
 
 let reportHdbcdsFiles = []
 let reportHdbcdsToCdsFiles = []
@@ -29,18 +29,25 @@ const convertHdbcdsToCds = (directory, oldExtension, newExtension) => {
         );
         reportHdbcdsToCdsFiles.push(path.basename(newFileName))
         fs1.renameSync(oldFileName, newFileName);
-
-        let relativePath = path.relative(newFileName.split('\\')[0], newFileName);
-        // const pathParts = relativePath.split('\\');
-        // const relevantParts = [pathParts[0], pathParts[pathParts.length - 1]];
-        // relativePath = relevantParts.join('\\');
-        ensureDirSync(path.join(cdsDirectoryPath, path.dirname(relativePath)));
-        moveSync(newFileName, path.join(cdsDirectoryPath, relativePath));
-
+        let relativePath;
+        let opsys = process.platform;
+        if (opsys == "win32" || opsys == "win64") {
+          relativePath = path.relative(newFileName.split('\\')[0], newFileName);
+        }
+        else{
+          relativePath = path.relative(newFileName.split('/')[0], newFileName);
+        }
+        let newDestinationPath = path.join(cdsDirectoryPath,path.dirname(relativePath));
+        ensureDirSync(newDestinationPath);
+        if (fs1.existsSync(newDestinationPath)) {
+          moveSync(newFileName, path.join(newDestinationPath, path.basename(newFileName)));
+        } else {
+          console.error("Destination folder doesn't exist");
+        }
       }
     }
   } catch (error) {
-    console.error(`Error: ${error}`);
+    console.error(`convert HDBcds to CDS Error: ${error}`);
   }
 };
 

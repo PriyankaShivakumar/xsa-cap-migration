@@ -1,9 +1,10 @@
 require("dotenv").config()
 const {createConnection} = require("@sap/hana-client")
+const util = require('util');
 
 
 let connection = createConnection();
-const hanaDbConnection = () => {
+const hanaDbConnection = async () => {
     const connParams = {
         host: process.env.HANA_HOST,
         port: process.env.HANA_SQL_PORT,
@@ -18,22 +19,13 @@ const hanaDbConnection = () => {
         connParams.proxy_userid = "";
         connParams.proxy_password = pp;
     }
-    return new Promise((resolve, reject) => {
-        try {
-            connection.connect(connParams, (err) => {
-                if (err) {
-                    console.error('hdb-client-helper prepareAndConnect Error:' + err.message);
-                    return reject(err);
-                } else {
-                    console.log("DB CONNECTION ESTABLISHED");
-                    return resolve(connection);
-                }
-            });
-        } catch (error) {
-            console.error('hdb-client-helper prepareAndConnect Error:' + error.message);
-            return reject(error);
-        }
-    });
+    let connectPromise = util.promisify(connection.connect).bind(connection);
+    try {
+        await connectPromise(connParams);
+        console.log("DB CONNECTION ESTABLISHED");
+    } catch (error) {
+        console.error('hdb-client-helper prepareAndConnect Error:' + error.message);
+    }
    
 }
 
@@ -45,7 +37,7 @@ const disconnectConnection = async() =>{
         console.error('hdb-client-helper disconnect Error', error);
     }
 }
-module.exports = {hanaDbConnection,disconnectConnection}
+module.exports = {hanaDbConnection,connection,disconnectConnection}
 
 
 

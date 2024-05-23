@@ -48,9 +48,9 @@ const setup_db = async (source, destination, option) => {
     console.log("Convert hdbfunction to cds");
     convertHdbfunctionToCds(".", ".hdbfunction")
     console.log("Convert hdbcalculationview to cds");
-    convertCalcviewToCds(".", ".hdbcalculationview",destination)
+    await convertCalcviewToCds(".", ".hdbcalculationview")
     console.log("Comment or remove the deprecated functionalities");
-    removeDeprecated();
+    // removeDeprecated();
     console.log("format cds files")
     formatcds(destination)
     console.log("Using Calculation Views Modification");

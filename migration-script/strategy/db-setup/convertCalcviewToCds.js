@@ -1,9 +1,8 @@
 const shell = require("shelljs");
 const xml2js = require("xml2js");
 const {readFileSync,writeFileSync,appendFileSync} = require('fs');
-const {hanaDbConnection, disconnectConnection} = require('./hanaDbConnection');
 const { convertDbTypes } = require("./convertHdbtableToCds");
-
+const { connection } = require("../../config/hanaDbConnection");
 
 let reportHdbcalculationFiles = []
 let reportCalcCdsFiles = []
@@ -12,10 +11,8 @@ const reportHdbcalculationToCds = () =>{
     return {reportHdbcalculationFiles,reportCalcCdsFiles}
 }
 
-const convertToProxyCds = (data,destination) =>{
+const convertToProxyCds = (data) =>{
     let indexContent = "";
-    const originalDir = process.cwd();
-    process.chdir(destination + "/cds");
     for (let key in data) {
         if(data[key].variableView.length > 0 || data[key].dimensionView.length > 0 ){
             let output = "";
@@ -45,16 +42,14 @@ const convertToProxyCds = (data,destination) =>{
         }
     }
     try {
-        process.chdir(destination);
         appendFileSync('index.cds', indexContent,"utf8");
         console.log('Data has been appended!');
     } catch (err) {
-        console.error(err);
+        console.error('Appending into File Error',err);
     }
-    process.chdir(originalDir);
 }
 
-const executeQuery = async (query,connection) => {
+const executeQuery = async (query) => {
     return new Promise((resolve, reject) => {
         connection.exec(query, (err, result) => {
             if (err) reject(err);
@@ -86,36 +81,35 @@ const removeDuplicateFields = (obj) => {
     return clone;
 }
 
-const combinedOutput = async (connection,calViewIds,destination) =>{
+const combinedOutput = async (calViewIds) =>{
     try {
-        const combinedOutput = {};
+        const combinedOutputObj = {};
         for (const id of calViewIds) {
             const outputForId = {};
             const sqlQueryDimensionView = `SELECT COLUMN_NAME, COLUMN_SQL_TYPE FROM _SYS_BI.BIMC_DIMENSION_VIEW WHERE QUALIFIED_NAME = '${id}'`;
             const sqlQueryVariableView = `SELECT VARIABLE_NAME, COLUMN_SQL_TYPE FROM _SYS_BI.BIMC_VARIABLE_VIEW WHERE QUALIFIED_NAME = '${id}'`;
             try {
-                outputForId.dimensionView = await executeQuery(sqlQueryDimensionView,connection);
+                outputForId.dimensionView = await executeQuery(sqlQueryDimensionView);
             } catch (err) {
                 console.error('Error executing dimension view query for ID', id, err);
                 continue; 
             }
             try {
-                outputForId.variableView = await executeQuery(sqlQueryVariableView,connection);
+                outputForId.variableView = await executeQuery(sqlQueryVariableView);
             } catch(err) {
                 console.error('Error executing variable view query for ID', id, err);
                 continue;
             }
-            combinedOutput[id] = outputForId;
+            combinedOutputObj[id] = outputForId;
         }
-        disconnectConnection()
-        convertToProxyCds(removeDuplicateFields(combinedOutput),destination)
+        return combinedOutputObj;
         
     } catch (error) {
         console.error('Unanticipated Error processing DB:', error);
     }
 }
 
-const convertCalcviewToCds =  async(directory, extension,destination) => {
+const convertCalcviewToCds =  async(directory, extension) => {
     try {
         const files = shell.find(directory).filter((file) => file.endsWith(extension));
         const calViewIds = []
@@ -130,8 +124,8 @@ const convertCalcviewToCds =  async(directory, extension,destination) => {
                     calViewIds.push(id);
                 });
             }
-            const connection = await hanaDbConnection()
-            combinedOutput(connection,calViewIds,destination)
+            const combinedOutputObj = await combinedOutput(calViewIds)
+            convertToProxyCds(removeDuplicateFields(combinedOutputObj))
         }
     } catch (err) {
         console.error('Error processing files:', err);

@@ -66,7 +66,6 @@ const replacePatternsInFiles = (directory) => {
   try {
     const files = shell.find(directory).filter((file) => file.endsWith(".cds"));
     const modifiedData = groupContextEntity(".",".cds");
-    //C:\Users\C5378036\Downloads\GF_CUMULUS
     files.forEach(function (file) {
       try {
         const data = fs1.readFileSync(file, "utf8");
@@ -99,7 +98,8 @@ const replacePatternsInFiles = (directory) => {
                           if (!seenStatements.has(`'${resultSplit}';`)) {
                             usingStatements.push(`using ${nameSpace} as ${aliasSPlit} from '${resultSplit}';`);
                             seenStatements.add(`'${resultSplit}';`);
-                        }
+                          }
+                          return p2
                       }
                   }
               }
@@ -117,7 +117,7 @@ const replacePatternsInFiles = (directory) => {
       }
     });
   } catch (error) {
-    console.error(`Error: ${error}`);
+    console.error("Unable to read or write the file: " + err);
   }
 };
 
