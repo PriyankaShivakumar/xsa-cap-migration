@@ -27,6 +27,14 @@
          </xsl:attribute>
     </xsl:template>
 
+    <xsl:template match="calculatedAttribute/@id">
+        <xsl:attribute name="id">
+            <xsl:call-template name="process">
+                <xsl:with-param name="text" select="."/>
+            </xsl:call-template>
+        </xsl:attribute>
+    </xsl:template>
+
     <xsl:template match="DataSource/@id">
     <xsl:attribute name="id">
         <xsl:choose>
@@ -53,7 +61,7 @@
          </xsl:attribute>
     </xsl:template>
 
-    <xsl:template match="measure/@id[not(contains(., 'ConvGrossAmount'))]">
+    <xsl:template match="measure/@id[not(contains(., 'ConvGrossAmount', 'Counter'))]">
         <xsl:attribute name="id">
             <xsl:call-template name="process">
                 <xsl:with-param name="text" select="."/>
@@ -221,7 +229,7 @@
          </xsl:attribute>
     </xsl:template>
 
-    <xsl:template match="descriptions/@defaultDescription">
+    <xsl:template match="descriptions/@defaultDescription[not(contains(., 'Counter'))]">
         <xsl:attribute name="defaultDescription">
             <xsl:call-template name="process">
                 <xsl:with-param name="text" select="."/>
@@ -294,6 +302,18 @@
         <xsl:call-template name="process">
             <xsl:with-param name="text" select="."/>
         </xsl:call-template>
+        </xsl:copy>
+    </xsl:template>
+
+    <xsl:template match="formula[contains(., 'if')]">
+        <xsl:copy>
+            <xsl:value-of select="substring-before(., '(')"/>
+            <xsl:text>(</xsl:text>
+            <xsl:call-template name="process">
+                <xsl:with-param name="text" select="substring-before(substring-after(., '('), ')')"/>
+            </xsl:call-template>
+            <xsl:text>)</xsl:text>
+            <xsl:value-of select="substring-after(., ')')"/>
         </xsl:copy>
     </xsl:template>
     

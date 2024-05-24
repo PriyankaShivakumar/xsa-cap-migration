@@ -45,6 +45,14 @@
       ]
     },
     {
+      "fileExts": ["hdbcalculationview"],
+      "strategies": [
+        {
+          "name": "ColObjectNameReplacement"
+        }
+      ]
+    },
+    {
       "fileExts": ["hdbtabletype", "hdbprocedure", "hdbrole.txt"],
       "strategies": [
         {

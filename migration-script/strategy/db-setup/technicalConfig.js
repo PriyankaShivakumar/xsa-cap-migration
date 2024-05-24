@@ -28,7 +28,7 @@ const technicalConfig = (directory, option) => {
     const files = shell.find(directory).filter((file) => file.endsWith(".cds"));
     files.forEach(function (file) {
       let fileData = fs1.readFileSync(file, "utf8");
-      let regex = /((@Comment:[^\n]*\n)*\s*)entity\s+\w+\s*{\s*[\w\s:;.()+,0-9@|&'_/=*[\]\/]+\s*}\s*technical\s+configuration\s*{\s*[\w\s:;.()+,0-9@|&'_/=*[\]\/]+\s*}/gi;
+      let regex = /((@Comment:[^\n]*\n)*\s*)entity\s+\w+\s*{\s*[\w\s:;.()+#,0-9@|&'_/=*+-[\]\/]+\s*}\s*technical\s+configuration\s*{\s*[\w\s:;.()+,0-9@|&'_/=*[\]\/]+\s*}/gi;
       if (regex.test(fileData)) {
         fileData = fileData.replace(
           regex,

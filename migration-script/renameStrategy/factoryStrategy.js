@@ -2,6 +2,7 @@ const CDS = require('./cdsStrategy');
 const CharReplacementUppercase = require('./charReplacementStrategy');
 const CharReplacementUppercaseSingleQuote = require('./charReplacementSingleQuoteStrategy');
 const CharReplacementDate = require("./charReplacementDate")
+const ColObjectNameReplacement = require("./colObjectNameReplacement")
 const XSLT = require('./xsltStrategy');
 
 class StrategyFactory {
@@ -18,6 +19,7 @@ const register = () => {
     StrategyFactory.register("CharReplacementUppercaseSingleQuote", new CharReplacementUppercaseSingleQuote());
     StrategyFactory.register("XSLT", new XSLT());
     StrategyFactory.register("CharReplacementDate", new CharReplacementDate());
+    StrategyFactory.register("ColObjectNameReplacement", new ColObjectNameReplacement())
     //StrategyFactory.register("CDS", new CDS());
 };
 register();

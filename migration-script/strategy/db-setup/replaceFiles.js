@@ -7,7 +7,7 @@ const replaceSimpleUsingInFiles = (directory) => {
     files.forEach(function (file) {
       try {
         const data = fs1.readFileSync(file, "utf8");
-        if (data.includes("::") || data.includes(": :")) return;
+        if (data.includes("::")) return;
         let regex = /(using\s+)([^\s;]+)(?:\s+as\s+([^\s.;]+))?;/g;
         let result = data.replace(regex, function (_, p1, p2, p3) {
           let pack = p2;
