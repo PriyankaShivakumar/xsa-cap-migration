@@ -41,12 +41,6 @@ const convertToProxyCds = (data) =>{
             }
         }
     }
-    try {
-        appendFileSync('index.cds', indexContent,"utf8");
-        console.log('Data has been appended!');
-    } catch (err) {
-        console.error('Appending into File Error',err);
-    }
 }
 
 const executeQuery = async (query) => {

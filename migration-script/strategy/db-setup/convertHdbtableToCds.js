@@ -279,4 +279,4 @@ const convertToCds = (data) =>{
   }
 }
 
-module.exports = {convertHdbtableToCds,convertDbTypes,reportHdbtableToCds};
+module.exports = {convertHdbtableToCds,convertDbTypes,reportHdbtableToCds,dataTypesCleanUp,convertToHdbsynonym,convertSqlToAssociation};
