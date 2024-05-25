@@ -1,6 +1,7 @@
 const shell = require("shelljs");
 const fs1 = require("fs");
 const {groupContextEntity,getRelativePath} = require("./groupContextEntity");
+const path = require('path')
 
 const replaceSimpleUsingInFiles = (directory) => {
   try {
@@ -58,10 +59,6 @@ const replaceUsingInFiles = (directory) => {
   }
 };
 
-const randomString = () =>{
-  return require('crypto').randomBytes(10).toString('hex').substring(0,4).replace(/[0-9]/g, 'a')
-}
-
 const replacePatternsInFiles = (directory) => {
   try {
     const files = shell.find(directory).filter((file) => file.endsWith(".cds"));
@@ -73,7 +70,6 @@ const replacePatternsInFiles = (directory) => {
         let seenStatements = new Set();
         let usingStatements = [];
         const tempValue = []
-        let randomLetter;
         let duplicateObject = {}
         let result = data.replace(regex, function (match, p1, p2) {
           let splitEntity =  p2.split(".")
@@ -84,17 +80,28 @@ const replacePatternsInFiles = (directory) => {
                   for(const entity of item.entities){
                       if(entity ==  splitEntity[1].toUpperCase()){
                           const resultSplit = getRelativePath(item.file, file);
+                          let extendedName = path.dirname(item.file).split('/')
+                          let fileNameWithoutExt;
+                          if(extendedName.length > 3){
+                            fileNameWithoutExt = `${extendedName[1]}_${extendedName[2]}`
+                          }else if(extendedName.length > 1){
+                            fileNameWithoutExt = extendedName[1];
+                          }
                           if(!tempValue.includes(p2) && !seenStatements.has(`'${resultSplit}';`)){
                               tempValue.push(p2)
-                              randomLetter = randomString()
                           }
-                          aliasSPlit = `${splitEntity[0]}${randomLetter}`
+                          if(fileNameWithoutExt){
+                            aliasSPlit = `${fileNameWithoutExt}_${splitEntity[0]}`
+                            p2 = `${fileNameWithoutExt}_${splitEntity[0]}.${splitEntity[1]}`
+                          }else{
+                            aliasSPlit = `${splitEntity[0]}`
+                            p2 = `${splitEntity[0]}.${splitEntity[1]}`
+                          }
                           if(duplicateObject.hasOwnProperty(p2)){
                             aliasSPlit = duplicateObject[p2]
                           }else{
                               duplicateObject[p2] = aliasSPlit;
                           }
-                          p2 = `${splitEntity[0]}${randomLetter}.${splitEntity[1]}`
                           if (!seenStatements.has(`'${resultSplit}';`)) {
                             usingStatements.push(`using ${nameSpace} as ${aliasSPlit} from '${resultSplit}';`);
                             seenStatements.add(`'${resultSplit}';`);

@@ -54,9 +54,9 @@ const convertSqlToAssociation = (sqlString) => {
       let asIndex = line.indexOf(' AS ');
       let onIndex = line.indexOf(' ON ');
       
-      let table = line.substring(line.indexOf('JOIN') + 4, asIndex).trim().toUpperCase();
-      let alias = line.substring(asIndex + 3, onIndex).trim().toUpperCase();
-      let rightId = line.substring(onIndex+ 3).trim().toUpperCase();       
+      let table = line.substring(line.indexOf('JOIN') + 4, asIndex).trim().replace(/\./g, '_').replace(/::/g, '_').replace(/"/g, '').toUpperCase();
+      let alias = line.substring(asIndex + 3, onIndex).trim().replace(/"/g, '').toUpperCase();
+      let rightId = line.substring(onIndex+ 3).trim().replace(/"/g, '').replace(/,/g, '').toUpperCase();       
       let associationType = line.includes("MANY TO MANY JOIN") ? "Association to many" : "Association to";
  
       return `${alias} : ${associationType} ${table} on ${rightId};`;    
