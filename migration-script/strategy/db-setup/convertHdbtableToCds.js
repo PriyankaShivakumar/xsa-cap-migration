@@ -25,7 +25,7 @@ const convertHdbtableToCds = (directory, extension) => {
       if(planeColumnQuotedTable) proxySynonymArray.push(planeColumnQuotedTable);
     });
     if(proxyCdsArray.length > 0){ 
-      writeFileSync('Proxy_Table.cds', 'context PROXYTABLE  {\n' + proxyCdsArray.join('\n\n') + '\n}')
+      writeFileSync('Proxy_Table.cds', proxyCdsArray.join('\n\n'))
       reportCdsFiles.push("Proxy_Table.cds")
     }
     if(proxySynonymArray.length > 0) { 
@@ -173,7 +173,7 @@ const convertDbTypes = (types) => {
 }
 
 const convertToHdbsynonym = (tableName) =>{
-    return `"PROXYTABLE_${tableName.toUpperCase().replace(/"/g, '').replace(/\./g, '_').replace(/::/g, '_')}" : {
+    return `"${tableName.toUpperCase().replace(/"/g, '').replace(/\./g, '_').replace(/::/g, '_')}" : {
       "target": {
         "object" : ${tableName}
       }
@@ -215,9 +215,9 @@ const convertToCds = (data) =>{
   if(lines.length == 1){
     lines = splitLines(formatTableStatement(data))
   }
-  let entityName = lines[0].replace(/column table /ig, '').trim().replace(' (', '').toUpperCase();
+  let entityName = lines[0].replace(/column table /ig, '').trim().replace(' (', '')
   let tableName = entityName;
-  entityName = entityName.replace(/"/g, '').replace(/\./g, '_').replace(/::/g, '_');
+  entityName = entityName.replace(/"/g, '').replace(/\./g, '_').replace(/::/g, '_').toUpperCase();;
 
   let keyNamesArray = [];
   if (data.includes('PRIMARY KEY')) {
