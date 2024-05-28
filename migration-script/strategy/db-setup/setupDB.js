@@ -29,7 +29,6 @@ const findFiles = require("./findFiles");
 const {convertHdbtableToCds} = require("./convertHdbtableToCds");
 const inlineConfig = require("./inlineConfig");
 const formatcds = require("../formatCds");
-const {convertCalcviewToCds} = require("./convertCalcviewToCds");
 const {convertHdbfunctionToCds} = require("./convertHdbfunctionToCds");
 
 const setup_db = async (source, destination, option) => {
@@ -47,8 +46,6 @@ const setup_db = async (source, destination, option) => {
     replacePatternsInFiles(".")
     console.log("Convert hdbfunction to cds");
     convertHdbfunctionToCds(".", ".hdbfunction")
-    console.log("Convert hdbcalculationview to cds");
-    await convertCalcviewToCds(".", ".hdbcalculationview")
     console.log("Comment or remove the deprecated functionalities");
     removeDeprecated();
     console.log("format cds files")
