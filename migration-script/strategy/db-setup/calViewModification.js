@@ -34,4 +34,5 @@ const calViewModification = () => {
       fs1.writeFileSync(file, newContent);
     });
 };
+
 module.exports = calViewModification;

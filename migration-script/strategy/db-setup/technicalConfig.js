@@ -28,44 +28,46 @@ const technicalConfig = (directory, option) => {
     const files = shell.find(directory).filter((file) => file.endsWith(".cds"));
     files.forEach(function (file) {
       let fileData = fs1.readFileSync(file, "utf8");
-      let regex =
-        /((@Comment:[^\n]*\n)*\s*)(Entity\s+[^\{\n]+)([\s\S]*?})\s+technical configuration\s+\{([\s\S]*?)\}/gi;
+      let regex = /((@Comment:[^\n]*\n)*\s*)entity\s+\w+\s*{\s*[\w\s:;.()+#,0-9@|&'_/=*+-[\]\/]+\s*}\s*technical\s+configuration\s*{\s*[\w\s:;.()+,0-9@|&'_/=*[\]\/]+\s*}/gi;
       if (regex.test(fileData)) {
         fileData = fileData.replace(
           regex,
-          (match, comments, leadingSpace, entity, entityBody, techConfig) => {
-            let techConfigValue;
+          (match, comments) => {
+            let techConfigRegex = /technical\s+configuration\s*{([\s\S]+?)}/gi;
+             let entityRegex = /entity\s+\w+\s*{([\s\S]+?)}/gi
+            let techConfigValue= techConfigRegex.exec(match)[1];
+            let entity = entityRegex.exec(match)[0]
             if (option == 1) {
-              techConfigValue = techConfig
+              techConfigValue = techConfigValue
                 .replace(/fulltext\s*index[\s\S]*?;/gi, "")
                 .trim();
               techConfigValue = techConfigValue.replace(/\s\s+/g, " ");
               if (techConfigValue === "") {
-                return `${comments || ""}${entity}${entityBody}`;
+                return `${comments || ""}${entity}`;
               } else {
                 return `${
                   comments || ""
-                }@sql.append: \`\`\`\n  technical configuration {\n    ${techConfigValue}\n  }\n\`\`\`\n${entity}${entityBody}`;
+                }@sql.append: \`\`\`\n  technical configuration {\n    ${techConfigValue}\n  }\n\`\`\`\n${entity}`;
               }
             } else {
-              techConfigValue = techConfig
+              techConfigValue = techConfigValue
                 .replace(/fulltext\s*index[\s\S]*?;/gi, "")
                 .replace(/column\s*store[\s\S]*?;/gi, "")
                 .replace(/row\s*store[\s\S]*?;/gi, "")
                 .trim();
               const techConfigValueArray = techConfigValue.split(";");
-              techConfigValue = techConfigValue.replace(/\;/g, "\n");
+              //techConfigValue = techConfigValue.replace(/\;/g, ";\n");
               if (techConfigValue === "") {
-                return `${comments || ""}${entity}${entityBody}`;
+                return `${comments || ""}${entity}`;
               } else {
                 if (techConfigValueArray.length <= 2) {
                   return `${
                     comments || ""
-                  }@sql.append: \`\n  technical configuration {\n    ${techConfigValue}\n  }\n\`\n${entity}${entityBody}`;
+                  }@sql.append: \`\n  technical configuration {\n    ${techConfigValue}\n  }\n\`\n${entity}`;
                 } else {
                   return `${
                     comments || ""
-                  }@sql.append: \`\`\`\n  technical configuration {\n    ${techConfigValue}\n  }\n\`\`\`\n${entity}${entityBody}`;
+                  }@sql.append: \`\`\`\n  technical configuration {\n    ${techConfigValue}\n  }\n\`\`\`\n${entity}`;
                 }
               }
             }

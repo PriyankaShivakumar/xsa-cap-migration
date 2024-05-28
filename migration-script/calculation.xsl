@@ -27,6 +27,14 @@
          </xsl:attribute>
     </xsl:template>
 
+    <xsl:template match="calculatedAttribute/@id">
+        <xsl:attribute name="id">
+            <xsl:call-template name="process">
+                <xsl:with-param name="text" select="."/>
+            </xsl:call-template>
+        </xsl:attribute>
+    </xsl:template>
+
     <xsl:template match="DataSource/@id">
     <xsl:attribute name="id">
         <xsl:choose>
@@ -53,7 +61,7 @@
          </xsl:attribute>
     </xsl:template>
 
-    <xsl:template match="measure/@id[not(contains(., 'ConvGrossAmount'))]">
+    <xsl:template match="measure/@id[not(contains(., 'ConvGrossAmount') or contains(., 'Counter'))]">
         <xsl:attribute name="id">
             <xsl:call-template name="process">
                 <xsl:with-param name="text" select="."/>
@@ -181,27 +189,13 @@
         <xsl:value-of select="concat($prefix, $transformed_text)"/>
     </xsl:template>
 
-  <xsl:template match="targetVariable/@resourceUri">
-    <xsl:attribute name="resourceUri">
-        <xsl:choose>
-            <xsl:when test="contains(., 'undefined::')">
-                <xsl:call-template name="prefixAndTransform">
-                    <xsl:with-param name="prefix" select="'undefined::'"/>
-                    <xsl:with-param name="text" select="substring-after(., 'undefined::')"/>
-                </xsl:call-template>
-            </xsl:when>
-            <xsl:when test="contains(., '/undefined/calculationviews/')">
-                <xsl:call-template name="prefixAndTransform">
-                    <xsl:with-param name="prefix" select="'/undefined/calculationviews/'"/>
-                    <xsl:with-param name="text" select="substring-after(., '/undefined/calculationviews/')"/>
-                </xsl:call-template>
-            </xsl:when>
-            <xsl:otherwise>
-                <xsl:value-of select="."/>
-            </xsl:otherwise>
-        </xsl:choose>
-    </xsl:attribute>
-</xsl:template>
+    <xsl:template match="targetVariable/@resourceUri">
+        <xsl:attribute name="resourceUri">
+          <xsl:call-template name="prefixAndTransform">
+            <xsl:with-param name="text" select="."/>
+          </xsl:call-template>
+        </xsl:attribute>
+    </xsl:template>
 
     <xsl:template match="keyMapping/@columnName">
         <xsl:attribute name="columnName">
@@ -235,7 +229,7 @@
          </xsl:attribute>
     </xsl:template>
 
-    <xsl:template match="descriptions/@defaultDescription">
+    <xsl:template match="descriptions/@defaultDescription[not(contains(., 'Counter'))]">
         <xsl:attribute name="defaultDescription">
             <xsl:call-template name="process">
                 <xsl:with-param name="text" select="."/>
@@ -287,6 +281,42 @@
          </xsl:attribute>
     </xsl:template>
 
+    <xsl:template match="externalLikeStructureName">
+        <xsl:copy>
+        <xsl:call-template name="process">
+            <xsl:with-param name="text" select="."/>
+        </xsl:call-template>
+        </xsl:copy>
+    </xsl:template>
+   
+    <xsl:template match="externalLikeStructureType">
+        <xsl:copy>
+        <xsl:call-template name="process">
+            <xsl:with-param name="text" select="."/>
+        </xsl:call-template>
+        </xsl:copy>
+    </xsl:template>
+    
+    <xsl:template match="externalLikeElementName">
+        <xsl:copy>
+        <xsl:call-template name="process">
+            <xsl:with-param name="text" select="."/>
+        </xsl:call-template>
+        </xsl:copy>
+    </xsl:template>
+
+    <xsl:template match="formula[contains(., 'if')]">
+        <xsl:copy>
+            <xsl:value-of select="substring-before(., '(')"/>
+            <xsl:text>(</xsl:text>
+            <xsl:call-template name="process">
+                <xsl:with-param name="text" select="substring-before(substring-after(., '('), ')')"/>
+            </xsl:call-template>
+            <xsl:text>)</xsl:text>
+            <xsl:value-of select="substring-after(., ')')"/>
+        </xsl:copy>
+    </xsl:template>
+    
 <xsl:template match="filter">
     <xsl:copy>
         <xsl:apply-templates select="@*|node()" />
