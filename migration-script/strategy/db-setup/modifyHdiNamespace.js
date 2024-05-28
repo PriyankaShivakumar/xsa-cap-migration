@@ -34,4 +34,4 @@ const modifyHdiNamespace = (destination) => {
   }
 };
 
-module.exports = {modifyHdiNamespace,reportHdiNamespaceModify};
+module.exports = {modifyHdiNamespace};
