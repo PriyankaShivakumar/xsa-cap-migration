@@ -28,7 +28,7 @@ const inlineConfig = (directory) => {
             captureGroup2 = captureGroup2.replace(/\s+/g, ' ').trim();
             if (
               !captureGroup2.includes("default") &&
-              !captureGroup2.includes(")") &&
+              !captureGroup2.includes(") {") &&
               !captureGroup2.includes(",") &&
               !captureGroup2.includes("enum") &&
               captureGroup2 !== "" &&
