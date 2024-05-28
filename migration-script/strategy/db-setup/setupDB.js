@@ -42,8 +42,6 @@ const setup_db = async (source, destination, option) => {
     convertHdbcdsToCds(".", ".hdbcds", ".cds");
     console.log("Convert hdbtable to cds");
     convertHdbtableToCds(".", ".hdbtable")
-    console.log("modify cds file replacePatternsInFiles ");
-    replacePatternsInFiles(".")
     console.log("Convert hdbfunction to cds");
     convertHdbfunctionToCds(".", ".hdbfunction")
     console.log("Comment or remove the deprecated functionalities");
@@ -52,6 +50,8 @@ const setup_db = async (source, destination, option) => {
     formatcds(destination)
     console.log("Using Calculation Views Modification");
     calViewModification();
+    console.log("modify cds file replacePatternsInFiles ");
+    replacePatternsInFiles(".")
     console.log("Modify the view notation");
     modifyViewNotation();
     console.log("Change Datatypes");
