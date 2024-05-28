@@ -61,7 +61,7 @@
          </xsl:attribute>
     </xsl:template>
 
-    <xsl:template match="measure/@id[not(contains(., 'ConvGrossAmount', 'Counter'))]">
+    <xsl:template match="measure/@id[not(contains(., 'ConvGrossAmount') or contains(., 'Counter'))]">
         <xsl:attribute name="id">
             <xsl:call-template name="process">
                 <xsl:with-param name="text" select="."/>
