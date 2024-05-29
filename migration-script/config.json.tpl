@@ -37,7 +37,7 @@
       ]
     },
     {
-      "fileExts": ["hdbtabletype", "hdbindex", "hdbview", "hdbtable", "hdbsequence", "hdbprocedure", "hdbtablefunction", "hdbfunction"],
+      "fileExts": ["hdbtabletype", "hdbindex", "hdbtable", "hdbsequence", "hdbprocedure", "hdbtablefunction", "hdbfunction"],
       "strategies": [
          {
             "name": "CharReplacementCS",

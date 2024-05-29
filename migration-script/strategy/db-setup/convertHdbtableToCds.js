@@ -17,12 +17,14 @@ const convertHdbtableToCds = (directory, extension) => {
     const files = shell.find(directory).filter((file) => file.endsWith(extension));
     let proxyCdsArray = []
     let proxySynonymArray = []
+    let proxyHdbview = [];
     files.forEach(file => {
       reportHdbtableFiles.push(file.split('/').pop())
       let data = readFileSync(file, "utf8");
-      let { newFileContent, planeColumnQuotedTable} = convertToCds(data);
+      let { newFileContent, planeColumnQuotedTable,hdbViewResult} = convertToCds(data);
       if(newFileContent) proxyCdsArray.push(newFileContent);
       if(planeColumnQuotedTable) proxySynonymArray.push(planeColumnQuotedTable);
+      if(hdbViewResult) proxyHdbview.push(hdbViewResult);
     });
     if(proxyCdsArray.length > 0){ 
       writeFileSync('Proxy_Table.cds', proxyCdsArray.join('\n\n'))
@@ -33,7 +35,10 @@ const convertHdbtableToCds = (directory, extension) => {
       let result = '{\n' + jsonString + '\n}';      
       writeFileSync('src/Proxy_Table.hdbsynonym', result); 
       reportSynonymFile.push("Proxy_Table.hdbsynonym")
-  }
+    }
+    if(proxyHdbview.length > 0) {
+      writeFileSync(`Proxy_Table.hdbview`, proxyHdbview.join('\n\n'));
+    }
   } catch (error) {
     console.error(`Error converting Hdbtable to cds: ${error}`);
   }
@@ -180,6 +185,16 @@ const convertToHdbsynonym = (tableName) =>{
     }`
 }
 
+const convertTohdbview = (tableName,entityName,columns) =>{
+  const hdbviewOutput = [
+    `VIEW ${entityName.toUpperCase()} AS SELECT`,
+    ...columns.map((name) => `  ${name}  AS ${name.toUpperCase().replace(/"/g, '').replace(/\./g, '_')},`),
+   `FROM ${tableName}`,
+  ].join('\n');
+
+  return hdbviewOutput
+}
+
 const splitLines = (data) =>{
   return data.split('\n').filter((line) => line.trim() !== '');
 }
@@ -228,12 +243,16 @@ const convertToCds = (data) =>{
     } 
   }
 
-  const columns = [];
+  let columns = [];
+  let columnsForViews = [];
+  let columnQuote = false;
   for (let i = 1; i < lines.length ; i++) {
     const columnLine = lines[i].trim().replace(/COMMENT.*$/, '');
     if(columnLine !== ""){
       let matches = columnLine.split(" ").filter(Boolean);
       if(matches.length > 1 && sqlDataTypes.includes(dataTypesCleanUp(matches[1]).split('(')[0].replace(/['"]+/g, '').toUpperCase().trim())){
+        columnsForViews.push(matches[0].replace(/\)+/, '').trim());
+        columnQuote = matches[0].includes('"');
         let name = matches[0].replace(/"/g, '').replace(/\)+/, '').trim().replace(/\./g, '_').toUpperCase();
         let matchesType = checkIfNumberAndBracket(matches)
         if (name !== "COMMENT") {
@@ -251,8 +270,9 @@ const convertToCds = (data) =>{
     }
   }
 
-  let isEntityQuoted = tableName.includes('"')
-  let planeColumnQuotedTable = isEntityQuoted ? convertToHdbsynonym(tableName) : undefined;
+  let isEntityQuoted = tableName.includes('"');
+  let planeColumnQuotedTable = isEntityQuoted || columnQuote ? convertToHdbsynonym(tableName) : undefined;
+  let hdbViewResult = columnQuote ?  convertTohdbview(tableName,entityName,columnsForViews) : undefined;
 
   let associationDetails = [];
   if(data.includes("ASSOCIATIONS") && data.includes("JOIN")){
@@ -275,7 +295,8 @@ const convertToCds = (data) =>{
 
   return {
     newFileContent,
-    planeColumnQuotedTable
+    planeColumnQuotedTable,
+    hdbViewResult
   }
 }
 
