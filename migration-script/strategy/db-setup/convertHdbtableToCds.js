@@ -94,8 +94,8 @@ const dataTypesCleanUp = (type) =>{
 }
  
 const convertDbTypes = (types) => {
-
-  types = dataTypesCleanUp(types)
+  types = types.toUpperCase();
+  types = dataTypesCleanUp(types);
   let match = types.match(/\(([^)]+)\)/);
   if (match) {
     switch (true) {
@@ -111,13 +111,16 @@ const convertDbTypes = (types) => {
         return `hana.ST_GEOMETRY(${match[1].trim()})`;
     }
   }
+
+  types = types.split('(')[0];
   switch (types) {
     case 'BOOLEAN':
       return 'Boolean';
     case 'DECIMAL':
       return 'Decimal';
     case 'NVARCHAR':
-    case 'STRING' :
+    case 'STRING':
+    case 'ALPHANUM':
       return 'String';
     case 'INTEGER':
     case 'INT':
@@ -160,8 +163,6 @@ const convertDbTypes = (types) => {
       return 'hana.SMALLDECIMAL'
     case 'VARBINARY':
       return 'Binary'
-    case 'ALPHANUM':
-      return 'hana.ALPHANUM'
     case 'BINARY':
       return 'hana.BINARY'
     case 'TIME':
@@ -232,7 +233,7 @@ const convertToCds = (data) =>{
   }
   let entityName = lines[0].replace(/column table /ig, '').trim().replace(' (', '')
   let tableName = entityName;
-  entityName = entityName.replace(/"/g, '').replace(/\./g, '_').replace(/::/g, '_').toUpperCase();;
+  entityName = entityName.replace(/"/g, '').replace(/\./g, '_').replace(/::/g, '_').toUpperCase();
 
   let keyNamesArray = [];
   if (data.includes('PRIMARY KEY')) {
@@ -270,7 +271,9 @@ const convertToCds = (data) =>{
     }
   }
 
+  columnQuote = false;
   let isEntityQuoted = tableName.includes('"');
+  isEntityQuoted = false;
   let planeColumnQuotedTable = isEntityQuoted || columnQuote ? convertToHdbsynonym(tableName) : undefined;
   let hdbViewResult = columnQuote ?  convertTohdbview(tableName,entityName,columnsForViews) : undefined;
 
@@ -296,8 +299,9 @@ const convertToCds = (data) =>{
   return {
     newFileContent,
     planeColumnQuotedTable,
-    hdbViewResult
+    hdbViewResult,
+    columns
   }
 }
 
-module.exports = {convertHdbtableToCds,convertDbTypes,reportHdbtableToCds,dataTypesCleanUp,convertToHdbsynonym,convertSqlToAssociation};
+module.exports = {convertHdbtableToCds,isValidJoinLine,splitLines,isValidManyJoinLine,convertDbTypes,reportHdbtableToCds,dataTypesCleanUp,convertToHdbsynonym,convertSqlToAssociation,convertToCds,convertTohdbview,formatTableStatement,checkIfNumberAndBracket};

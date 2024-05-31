@@ -4,7 +4,9 @@ const path = require('path');
 const groupContextEntity = (directory,extension) =>{
     try {
         const files = find(directory).filter((file) => file.endsWith(extension));
-        const extractingData = files.map(file => { 
+        let extractingData;
+        if(extension == '.cds'){
+            extractingData = files.map(file => { 
             let data = readFileSync(file, "utf8");
             let lines = data.toUpperCase().split('\n');
             let contextLine = lines.find(line => line.includes('CONTEXT'));
@@ -13,11 +15,12 @@ const groupContextEntity = (directory,extension) =>{
             let entities = entitiesLines?.map(line => line.split('ENTITY')[1].replace(/(\w+)\{/g, "$1").trim().split(' ')[0]);
             let annotationLines = lines.filter(line => line.includes('ANNOTATIONS'));
             let annotation = annotationLines?.map(line => line.split('ANNOTATIONS')[1].trim().split(' ')[0]);
-            if(context) {
-                return { file, context, entities ,annotation};
-            }
-        }).filter(item => item)
-        return {extractingData};
+                if(context) {
+                    return { file, context, entities ,annotation};
+                }
+            }).filter(item => item)
+            return {extractingData};
+        }
     } catch (error) {
         console.log('Error while grouping',error)
     }

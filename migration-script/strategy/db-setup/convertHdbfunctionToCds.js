@@ -37,6 +37,7 @@ const convertToCds = (entity,inputParameter,returnTable) =>{
 
 const extractFieldAndTypes = (data)=>{
 
+    let originalData = data;
     data = data.toUpperCase().replace(/,\s*.*\s+TABLE.*\)\s+\)\s+(RETURNS)/is, ') ' + "$1");
     let splitEntity = data.match(/FUNCTION\s+"?([^"(]+)/)
     let entity = ''
@@ -48,7 +49,7 @@ const extractFieldAndTypes = (data)=>{
     if(match){
         data = data.replace(match[1], ')');
     }
-    let parametersString = data.substring(data.indexOf("(") + 1, data.toUpperCase().indexOf("RETURNS") - 2).trim();
+    let parametersString = originalData.substring(originalData.indexOf("(") + 1, originalData.toUpperCase().indexOf("RETURNS") - 2).trim();
     parametersString = parametersString.split(/,+(?![^()]*\))/).map(item => item.trim());
     let parameters = [];
     let regeular = /[^,()]+(?:\([^)]*\))?/g;
@@ -59,7 +60,7 @@ const extractFieldAndTypes = (data)=>{
     }
     let inputParameter = parameters.filter(item => item && item !== ')')
     .map(item => {
-           var temp = item.toUpperCase().replace(/IN\s+|DEFAULT\s+/g, '').replace("''",'').trim().split(/\s+/);
+           var temp = item.replace(/IN\s+|DEFAULT\s+/ig, '').replace("''",'').trim().split(/\s+/);
            if(temp[0] !== ''){
             return {field: temp[0], type: temp.slice(1).join(' ')};
            }
@@ -84,8 +85,7 @@ const convertHdbfunctionToCds = (directory, extension) => {
         files.forEach(file => {
             let pattern = /,(.*?TABLE.*?)RETURNS/s;
             let data = readFileSync(file, "utf8");
-            data = data.toUpperCase()
-            if(!data.match(pattern)){
+            if(!data.toUpperCase().match(pattern)){
                 reportHdbfunctionFiles.push(file)
                 const convertedData = extractFieldAndTypes(data);
                 if(convertedData) proxyCdsArray.push(convertedData)
@@ -100,4 +100,4 @@ const convertHdbfunctionToCds = (directory, extension) => {
     }
 };
 
-module.exports = {convertHdbfunctionToCds,reportHdbfunctionToCds}
+module.exports = {convertHdbfunctionToCds,reportHdbfunctionToCds,extractFieldAndTypes,convertToCds,dataTypesCleanUp}

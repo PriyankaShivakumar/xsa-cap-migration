@@ -1,94 +1,89 @@
 const {writeFileSync,readFileSync} = require("fs");
-const shell = require("shelljs");
+const {find} = require("shelljs");
+const { executeQuery } = require("./convertCalcviewToCds");
+const { convertDbTypes } = require("./convertHdbtableToCds");
 
-// let reportHdbtableFiles = []
-// let reportCdsFiles = []
-// let reportSynonymFile = []
+const extractViewName = (data) => {
+  let fromIndex = data.toUpperCase().indexOf("VIEW ");
+  let subData = data.substring(fromIndex);
+  let match = subData.match(/VIEW (\S+)/i);
+  let viewName = match ? match[1] : null;
+  return viewName.replace(/"/g, '');
+}
 
-
-// const reportHdbtableToCds = () =>{
-//   return {reportHdbtableFiles,reportCdsFiles,reportSynonymFile}
-// }
-
-
-const convertHdbviewToCds = (directory, extension) => {
+const executingQuery = async (hdbViewsIds) =>{
   try {
-    const files = shell.find(directory).filter((file) => file.endsWith(extension));
-    let proxyCdsArray = []
+      const combinedOutputObj = {};
+      for (const id of hdbViewsIds) {
+          const outputForId = {};
+          const sqlQueryDimensionView = `SELECT COLUMN_NAME, DATA_TYPE_NAME, LENGTH FROM VIEW_COLUMNS WHERE VIEW_NAME = '${id}'`;
+          const sqlQueryVariableView = `SELECT PARAMETER_NAME, DATA_TYPE_NAME, LENGTH FROM VIEW_PARAMETERS WHERE VIEW_NAME = '${id}'`;
+          try {
+              outputForId.dimensionView = await executeQuery(sqlQueryDimensionView);
+          } catch (err) {
+              console.error('Error executing dimension view query for ID', id, err);
+              continue; 
+          }
+          try {
+              outputForId.variableView = await executeQuery(sqlQueryVariableView);
+          } catch(err) {
+              console.error('Error executing variable view query for ID', id, err);
+              continue;
+          }
+          combinedOutputObj[id] = outputForId;
+      }
+      return combinedOutputObj;
+      
+  } catch (error) {
+      console.error('Unanticipated Error processing DB:', error);
+  }
+}
+
+const convertToProxyCds = (data) =>{
+  let proxyCdsArray = []
+  for (let key in data) {
+      if(data[key].variableView.length > 0 || data[key].dimensionView.length > 0 ){
+          let output = "";
+          let entityName = key.replace(/::/g, '_').replace(/\./g, '_').toUpperCase()
+          output += `@cds.persistence.exists \nentity ${entityName} `;
+          if (data[key].variableView && data[key].variableView.length > 0) {
+              output += "(";
+              data[key].variableView.forEach((variable, index) => {
+              if (index !== 0) { 
+                  output += ", ";
+              }
+              output += `${variable.PARAMETER_NAME} : ${convertDbTypes(`${variable.DATA_TYPE_NAME}(${variable.LENGTH})`)}`;
+              });
+              output += ") ";
+          }
+          output += "{\n";
+          data[key].dimensionView.forEach((dim) => {
+              output += `    ${dim.COLUMN_NAME} : ${convertDbTypes(`${dim.DATA_TYPE_NAME}(${dim.LENGTH})`)};\n`;
+          });
+          output += "};\n";
+          proxyCdsArray.push(output);
+      }
+  }
+  return proxyCdsArray;
+}
+
+const convertHdbviewToCds = async (directory, extension) => {
+  try {
+    const files = find(directory).filter((file) => file.endsWith(extension));
+    const hdbViewsIds = [];
     files.forEach(file => {
       let data = readFileSync(file, "utf8");
-      let { newFileContent } = convertToCds(data);
-      if(newFileContent) proxyCdsArray.push(newFileContent);
+      let id = extractViewName(data);
+      hdbViewsIds.push(id);
     });
-    if(proxyCdsArray.length > 0){ 
-        writeFileSync('Proxy_Hdbview.cds', proxyCdsArray.join('\n\n'))
-        // proxyCdsArray.push("Proxy_Hdbview.cds")
+    let queryResult  = await  executingQuery(hdbViewsIds);
+    let newFileContent = convertToProxyCds(queryResult);
+    if(newFileContent.length > 0){ 
+        writeFileSync('Proxy_Hdbview.cds', newFileContent.join('\n\n'));
     }
   } catch (error) {
-    console.error(`Error: ${error}`);
+    console.error(`Error converting hdbview to cds: ${error}`);
   }
 };
 
-const getDefineView = (data) => {
-  const lines = data.split('\n').filter((line) => line.trim() !== '');
-  let entityName = lines[0].replace(/view /ig, '').trim().replace(' (', '').replace(/"/g, '').replace(/\./g, '_');
-
-  let viewIndex = data.indexOf('VIEW');
-  let viewNameStartIndex = data.indexOf('"', viewIndex) + 1;
-  let viewNameEndIndex = data.indexOf('"', viewNameStartIndex);
-  let viewName = data.substring(viewNameStartIndex, viewNameEndIndex);
-  viewName = viewName.replace(/\./g, "_");
-
-  let fromIndex = data.indexOf('FROM');
-  let tableNameStartIndex = data.indexOf('"', fromIndex) + 1;
-  let tableNameEndIndex = data.indexOf('"', tableNameStartIndex);
-  let tableName = data.substring(tableNameStartIndex, tableNameEndIndex);
-
-  let asIndex = data.indexOf('AS', fromIndex);
-  let alias
-  if (asIndex !== -1) {
-    let aliasStartIndex = data.indexOf('"', asIndex) + 1;
-    let aliasEndIndex = data.indexOf('"', aliasStartIndex);
-    alias = data.substring(aliasStartIndex, aliasEndIndex);
-    alias = alias.split("_")[0];
-  }
-
-  let whereIndex = data.indexOf('WHERE');
-  let whereClause = "";
-  if (whereIndex !== -1) {
-    whereClause = data.substring(whereIndex + 'WHERE'.length).trim();
-  }
-  const defineOutput = `Entity ${viewName}`
-  // const defineOutput = `Entity ${viewName} as select from ${tableName} ${alias ? "as " + alias : ""}`
-  return { defineOutput, entityName, whereClause }
-}
-
-const getSelectFields = (data) => {
-  let start = data.indexOf('AS SELECT') + 'AS SELECT'.length;
-  let end = data.indexOf('FROM');
-  let subString = data.substring(start, end).trim();
-  let arrayOfSelectField = subString.split(',').map(line => line.trim());
-  return { arrayOfSelectField };
-}
-
-const convertToCds = (data) => {
-  let { defineOutput, entityName, whereClause } = getDefineView(data)
-  let { arrayOfSelectField } = getSelectFields(data)
-  let selectFieldFinalResult = arrayOfSelectField.map(field => {
-    return field.replace(/_\$.*?\./g, '.').replace(/"/g, '').trim();
-  });
-
-  //FINAL DATA
-  const newFileContent = [
-    `@cds.persistence.exists`,
-    `${defineOutput} {`,
-    ...selectFieldFinalResult.map((name) => `  ${name} ;`),
-    '}',
-    whereClause ? `WHERE ${whereClause}` : ""
-  ].join('\n');
-
-  return { newFileContent, entityName }
-}
-
-
-module.exports = convertHdbviewToCds;
+module.exports = {convertHdbviewToCds,extractViewName,convertToProxyCds,executingQuery};

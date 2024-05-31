@@ -12,7 +12,6 @@ const reportHdbcalculationToCds = () =>{
 }
 
 const convertToProxyCds = (data) =>{
-    let indexContent = "";
     for (let key in data) {
         if(data[key].variableView.length > 0 || data[key].dimensionView.length > 0 ){
             let output = "";
@@ -35,7 +34,6 @@ const convertToProxyCds = (data) =>{
             output += "};\n\n";
             let finalResult = typeof output === 'string' ? output : JSON.stringify(output, null, 2);
             if(finalResult.length > 0) {
-                indexContent = indexContent.concat(`using from './cds/${entityName}';\n`);
                 reportCalcCdsFiles.push(`${entityName}.cds`)
                 writeFileSync(`${entityName}.cds`, finalResult);
             }
@@ -126,5 +124,5 @@ const convertCalcviewToCds =  async(directory, extension) => {
     }
 }; 
 
-module.exports = {convertCalcviewToCds,reportHdbcalculationToCds,convertToProxyCds,removeDuplicateFields,executeQuery}
+module.exports = {convertCalcviewToCds,reportHdbcalculationToCds,convertToProxyCds,removeDuplicateFields,executeQuery,combinedOutput}
 
