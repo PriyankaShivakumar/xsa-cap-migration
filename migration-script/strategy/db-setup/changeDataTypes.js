@@ -11,6 +11,7 @@ const changeDataTypes = () => {
       replaceInFile(file, "UTCDateTime", "DateTime");
       replaceInFile(file, "UTCTimestamp", "Timestamp");
       replaceInFile(file, "BinaryFloat", "Double");
+      replaceInFile(file, "decimal", "Decimal");
     });
 };
 

@@ -300,7 +300,8 @@ const convertToCds = (data) =>{
     newFileContent,
     planeColumnQuotedTable,
     hdbViewResult,
-    columns
+    columns,
+    associationDetails
   }
 }
 

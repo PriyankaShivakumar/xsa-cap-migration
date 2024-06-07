@@ -52,12 +52,12 @@ const setup_db = async (source, destination, option) => {
     await convertHdbviewToCds(".",".hdbview")
     console.log("Comment or remove the deprecated functionalities");
     removeDeprecated();
-    console.log("format cds files")
-    formatcds(destination)
     console.log("Using Calculation Views Modification");
     calViewModification();
     console.log("modify cds file replacePatternsInFiles ");
-    replacePatternsInFiles(".")
+    replacePatternsInFiles(".");
+    console.log("format cds files")
+    formatcds(destination)
     console.log("Modify the view notation");
     modifyViewNotation();
     console.log("Change Datatypes");

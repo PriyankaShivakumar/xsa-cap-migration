@@ -8,7 +8,10 @@ const extractViewName = (data) => {
   let subData = data.substring(fromIndex);
   let match = subData.match(/VIEW (\S+)/i);
   let viewName = match ? match[1] : null;
-  return viewName.replace(/"/g, '');
+  if(viewName){
+    return viewName.replace(/"/g, '');
+  }
+  return viewName
 }
 
 const executingQuery = async (hdbViewsIds) =>{

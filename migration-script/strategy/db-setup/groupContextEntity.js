@@ -18,6 +18,16 @@ const groupContextEntity = (directory,extension) =>{
                 if(context) {
                     return { file, context, entities ,annotation};
                 }
+            }).filter(item => item);
+            return {extractingData};
+        }else if(extension == '.hdbtable'){
+            extractingData = files.map(file => { 
+                let data = readFileSync(file, "utf8");
+                let match =  data.substring(data.toUpperCase().indexOf("COLUMN TABLE")).match(/COLUMN TABLE "(\S+)"/i);
+                let tableName = (match ? match[1] : null) !== null ? (match ? match[1].replace(/"/g, '') : null) : null;
+                if(tableName) {
+                    return {file, tableName};
+                }
             }).filter(item => item)
             return {extractingData};
         }
