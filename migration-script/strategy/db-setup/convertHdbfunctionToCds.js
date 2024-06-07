@@ -1,11 +1,26 @@
 const {find} = require("shelljs");
 const {writeFileSync,readFileSync} = require("fs");
-const { convertDbTypes } = require("./convertHdbtableToCds");
+const { convertDbTypes, convertToCds } = require("./convertHdbtableToCds");
+const { groupContextEntity } = require("./groupContextEntity");
 
 let reportHdbfunctionFiles = [];
-let reportHdbfunctionProxyCds = []
+let reportHdbfunctionProxyCds = [];
+let reportHdbfunctionTableInput = [];
+let reportHdbfunctionMissingTables = [];
+
 const reportHdbfunctionToCds = ()=>{
-    return {reportHdbfunctionFiles,reportHdbfunctionProxyCds}
+    let report = {
+        reportHdbfunctionFiles: [...reportHdbfunctionFiles],
+        reportHdbfunctionProxyCds: [...reportHdbfunctionProxyCds],
+        reportHdbfunctionTableInput: [...reportHdbfunctionTableInput],
+        reportHdbfunctionMissingTables: [...reportHdbfunctionMissingTables]
+    };
+    reportHdbfunctionFiles.splice(0, reportHdbfunctionFiles.length);
+    reportHdbfunctionProxyCds.splice(0, reportHdbfunctionProxyCds.length);
+    reportHdbfunctionTableInput.splice(0, reportHdbfunctionTableInput.length);
+    reportHdbfunctionMissingTables.splice(0, reportHdbfunctionMissingTables.length);
+
+    return report;
 }
 
 const dataTypesCleanUp = (type) =>{
@@ -20,23 +35,42 @@ const dataTypesCleanUp = (type) =>{
     }
 }
 
-const convertToCds = (entity,inputParameter,returnTable) =>{
+const convertFunctionToCds = (entity,inputParameter,returnTable,extratedTableList,file) =>{
+    let output = ""
+    output += '@cds.persistence.exists\n'
+    output += '@cds.persistence.udf\n';
+    let entityName = entity.replace(/::/g, '_').replace(/\./g, '_');
     if(returnTable && returnTable[0].type !== ''){
-        let entityName = entity.replace(/::/g, '_').replace(/\./g, '_');
-        let output = ""
-        output += '@cds.persistence.exists\n'
-        output += '@cds.persistence.udf\n'
         if (inputParameter.length == 0) {
           output += `entity ${entityName} {\n\t${returnTable.map(item => `${item.field.replace(/::/g, '_').replace(/\./g, '_')}: ${convertDbTypes(dataTypesCleanUp(item.type))}`).join(';\n\t')}\n}`
         } else {
           output += `entity ${entityName}(${inputParameter.map(item => `${item.field.replace(/::/g, '_').replace(/\./g, '_')}: ${convertDbTypes(dataTypesCleanUp(item.type))}`).join(', ')}) {\n\t${returnTable.map(item => `${item.field.replace(/::/g, '_').replace(/\./g, '_')}: ${convertDbTypes(dataTypesCleanUp(item.type))}`).join(';\n\t') + ';'}\n}`
         }
         return output
+    }else if(returnTable.length == 1){
+        let tableFound = false;
+        for (const item of extratedTableList.extractingData) {
+            if (item.tableName.toUpperCase() === returnTable[0].field) {
+                const data = readFileSync(item.file , 'utf8');
+                const {columns,associationDetails} = convertToCds(data);
+                if (inputParameter.length == 0) {
+                    output += `entity ${entityName}  {\n\t${columns.map(item => `${item.name}: ${item.type}`).join(';\n\t') + ';'}${associationDetails ? `\n${associationDetails.join('\n')}` : ''}\n}`
+                  } else {
+                    output += `entity ${entityName}(${inputParameter.map(item => `${item.field.replace(/::/g, '_').replace(/\./g, '_')}: ${convertDbTypes(dataTypesCleanUp(item.type))}`).join(', ')}) {\n\t${columns.map(item => `${item.name}: ${item.type}`).join(';\n\t') + ';'}${associationDetails ? `\n${associationDetails.join('\n')}` : ''}\n}`
+                }
+                tableFound = true;
+                return output;
+            }
+        }
+        if (!tableFound) {
+            reportHdbfunctionMissingTables.push(file.split('/').pop());
+        }
     }
 }
 
-const extractFieldAndTypes = (data)=>{
+const extractFieldAndTypes = (data,extratedTableList,file)=>{
 
+    let originalData = data;
     data = data.toUpperCase().replace(/,\s*.*\s+TABLE.*\)\s+\)\s+(RETURNS)/is, ') ' + "$1");
     let splitEntity = data.match(/FUNCTION\s+"?([^"(]+)/)
     let entity = ''
@@ -48,7 +82,7 @@ const extractFieldAndTypes = (data)=>{
     if(match){
         data = data.replace(match[1], ')');
     }
-    let parametersString = data.substring(data.indexOf("(") + 1, data.toUpperCase().indexOf("RETURNS") - 2).trim();
+    let parametersString = originalData.substring(originalData.indexOf("(") + 1, originalData.toUpperCase().indexOf("RETURNS") - 2).trim();
     parametersString = parametersString.split(/,+(?![^()]*\))/).map(item => item.trim());
     let parameters = [];
     let regeular = /[^,()]+(?:\([^)]*\))?/g;
@@ -59,7 +93,7 @@ const extractFieldAndTypes = (data)=>{
     }
     let inputParameter = parameters.filter(item => item && item !== ')')
     .map(item => {
-           var temp = item.toUpperCase().replace(/IN\s+|DEFAULT\s+/g, '').replace("''",'').trim().split(/\s+/);
+           var temp = item.replace(/IN\s+|DEFAULT\s+/ig, '').replace("''",'').trim().split(/\s+/);
            if(temp[0] !== ''){
             return {field: temp[0], type: temp.slice(1).join(' ')};
            }
@@ -73,22 +107,24 @@ const extractFieldAndTypes = (data)=>{
         let result = item.trim().split(' ').map(item => item.trim());
         return {field: result[0].replace(/"/g, ''), type: result.slice(1).join('')}
     });
-    return convertToCds(entity,inputParameter,returnTable)
+    return convertFunctionToCds(entity,inputParameter,returnTable,extratedTableList,file)
 }
 
 
 const convertHdbfunctionToCds = (directory, extension) => {
     try {
         const files = find(directory).filter((file) => file.endsWith(extension));
+        let extratedTableList = groupContextEntity(".",".hdbtable");
         let proxyCdsArray = []
         files.forEach(file => {
             let pattern = /,(.*?TABLE.*?)RETURNS/s;
             let data = readFileSync(file, "utf8");
-            data = data.toUpperCase()
-            if(!data.match(pattern)){
-                reportHdbfunctionFiles.push(file)
-                const convertedData = extractFieldAndTypes(data);
+            if(!data.toUpperCase().match(pattern)){
+                reportHdbfunctionFiles.push(file.split('/').pop())
+                const convertedData = extractFieldAndTypes(data,extratedTableList,file);
                 if(convertedData) proxyCdsArray.push(convertedData)
+            }else{
+                reportHdbfunctionTableInput.push(file.split('/').pop())
             }
         });
         if(proxyCdsArray.length > 0){ 
@@ -100,4 +136,4 @@ const convertHdbfunctionToCds = (directory, extension) => {
     }
 };
 
-module.exports = {convertHdbfunctionToCds,reportHdbfunctionToCds}
+module.exports = {convertHdbfunctionToCds,reportHdbfunctionToCds,extractFieldAndTypes,convertFunctionToCds,dataTypesCleanUp}

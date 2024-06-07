@@ -30,6 +30,8 @@ const {convertHdbtableToCds} = require("./convertHdbtableToCds");
 const inlineConfig = require("./inlineConfig");
 const formatcds = require("../formatCds");
 const {convertHdbfunctionToCds} = require("./convertHdbfunctionToCds");
+const {convertHdbviewToCds} = require("./convertHdbviewToCds");
+const { convertCalcviewToCds } = require("./convertCalcviewToCds");
 
 const setup_db = async (source, destination, option) => {
   try {
@@ -43,15 +45,19 @@ const setup_db = async (source, destination, option) => {
     console.log("Convert hdbtable to cds");
     convertHdbtableToCds(".", ".hdbtable")
     console.log("Convert hdbfunction to cds");
-    convertHdbfunctionToCds(".", ".hdbfunction")
+    convertHdbfunctionToCds(".", ".hdbfunction");
+    console.log("Convert hdbcalculationview to cds");
+    await convertCalcviewToCds(".", ".hdbcalculationview")
+    console.log("Convert hdbview to cds");
+    await convertHdbviewToCds(".",".hdbview")
     console.log("Comment or remove the deprecated functionalities");
     removeDeprecated();
-    console.log("format cds files")
-    formatcds(destination)
     console.log("Using Calculation Views Modification");
     calViewModification();
     console.log("modify cds file replacePatternsInFiles ");
-    replacePatternsInFiles(".")
+    replacePatternsInFiles(".");
+    console.log("format cds files")
+    formatcds(destination)
     console.log("Modify the view notation");
     modifyViewNotation();
     console.log("Change Datatypes");
