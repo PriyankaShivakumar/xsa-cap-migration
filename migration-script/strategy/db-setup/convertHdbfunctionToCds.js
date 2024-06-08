@@ -39,7 +39,7 @@ const convertFunctionToCds = (entity,inputParameter,returnTable,extratedTableLis
     let output = ""
     output += '@cds.persistence.exists\n'
     output += '@cds.persistence.udf\n';
-    let entityName = entity.replace(/::/g, '_').replace(/\./g, '_');
+    let entityName = entity.replace(/::/g, '_').replace(/\./g, '_').replace(/"/g, '');
     if(returnTable && returnTable[0].type !== ''){
         if (inputParameter.length == 0) {
           output += `entity ${entityName} {\n\t${returnTable.map(item => `${item.field.replace(/::/g, '_').replace(/\./g, '_')}: ${convertDbTypes(dataTypesCleanUp(item.type))}`).join(';\n\t')}\n}`
@@ -72,7 +72,7 @@ const extractFieldAndTypes = (data,extratedTableList,file)=>{
 
     let originalData = data;
     data = data.toUpperCase().replace(/,\s*.*\s+TABLE.*\)\s+\)\s+(RETURNS)/is, ') ' + "$1");
-    let splitEntity = data.match(/FUNCTION\s+"?([^"(]+)/)
+    let splitEntity = data.match(/FUNCTION\s+"?([^()]+)/)
     let entity = ''
     if(splitEntity){
         entity = splitEntity[1].replace(/\./g, '_').replace(/::/g, '_');
